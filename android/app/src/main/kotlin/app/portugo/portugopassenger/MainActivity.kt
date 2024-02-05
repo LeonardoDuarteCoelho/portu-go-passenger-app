@@ -1,4 +1,4 @@
-package app.portugo.portu_go_passenger
+package app.portugo.portugopassenger
 
 import io.flutter.embedding.android.FlutterActivity
 
