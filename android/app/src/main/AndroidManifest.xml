@@ -32,6 +32,6 @@
         <!-- Google Maps API: -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDGhMovcs7Ov_nrrlefs3PhbnpQVdPvL8Y"/>
+            android:value="AIzaSyDGhMovcs7Ov_nrrlefs3PhbnpQVdPvL8Y" />
     </application>
 </manifest>
