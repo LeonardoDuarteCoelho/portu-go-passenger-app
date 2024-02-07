@@ -206,16 +206,18 @@ class _MainScreenState extends State<MainScreen> {
               setGoogleMapThemeToBlack(false);
             },
           ),
+
+          CustomButton(
+              text: AppStrings.signOut,
+              onPressed: () {
+                fAuth.signOut();
+                Navigator.push(context, MaterialPageRoute(builder: (c) => const LogInScreen()));
+              }
+          ),
         ],
       ),
     );
   }
 }
 
-/* CustomButton(
-          text: AppStrings.signOut,
-          onPressed: () {
-            fAuth.signOut();
-            Navigator.push(context, MaterialPageRoute(builder: (c) => const LogInScreen()));
-          }
- ), */
+

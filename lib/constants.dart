@@ -49,6 +49,7 @@ class AppStrings {
   static const String dontHaveAccountButton = 'Sem conta? Aperte aqui!';
   static const String logInSuccessful = 'Log in realizado. Bem-vindo de volta!';
   static const String logInError = 'Erro ao entrar na conta. Cheque se as credenciais estão correctas.';
+  static const String logInErrorNoRecordOfEmail = 'Erro ao entrar na conta. Email não registado como passageiro.';
 
   // 'home_screen.dart'
   static const String homeScreenTitle = 'Home';

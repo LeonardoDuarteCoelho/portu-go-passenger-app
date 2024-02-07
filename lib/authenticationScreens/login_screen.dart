@@ -25,6 +25,7 @@ class _LogInScreenState extends State<LogInScreen> {
 
   // Firebase variables:
   late final User? firebaseUser;
+  late DatabaseReference passengersRef;
 
   navigateToSplashScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (c) => const SplashScreen()));
@@ -74,10 +75,23 @@ class _LogInScreenState extends State<LogInScreen> {
     ).user;
     // If the user has been created successfully...
     if(firebaseUser != null) {
-      // Going forward with the log in process:
-      currentFirebaseUser = firebaseUser;
-      showToaster(AppStrings.logInSuccessful);
-      navigateToSplashScreen();
+      // Checking if the passenger's records already exists:
+      passengersRef = FirebaseDatabase.instance.ref().child('passengers');
+      passengersRef.child(firebaseUser!.uid).once().then((passengerKey) {
+        final snap = passengerKey.snapshot;
+        // If the records exist...
+        if(snap.value != null) {
+          // Going forward with the log in process:
+          currentFirebaseUser = firebaseUser;
+          showToaster(AppStrings.logInSuccessful);
+          navigateToSplashScreen();
+        } else {
+          // Warning user that their email hasn't been registered:
+          showToaster(AppStrings.logInErrorNoRecordOfEmail);
+          fAuth.signOut();
+          navigateToSplashScreen();
+        }
+      });
     } else {
       setNavigatorPop();
       showToaster(AppStrings.logInError);
