@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:portu_go_passenger/assistants/assistant_methods.dart';
 import 'package:portu_go_passenger/authenticationScreens/login_screen.dart';
 import 'package:portu_go_passenger/components/button.dart';
+import 'package:portu_go_passenger/components/navigation_drawer.dart';
 import 'package:portu_go_passenger/constants.dart';
 import 'package:portu_go_passenger/global/global.dart';
 
@@ -22,6 +24,15 @@ class _MainScreenState extends State<MainScreen> {
   );
   final Completer<GoogleMapController> _controllerGoogleMap = Completer<GoogleMapController>();
   GoogleMapController? newGoogleMapController;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  navigateToLogInScreen() {
+    Navigator.push(context, MaterialPageRoute(builder: (c) => const LogInScreen()));
+  }
 
   setGoogleMapThemeToBlack (bool changeToBlackTheme) {
     if(changeToBlackTheme) {
@@ -194,6 +205,12 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(),
+      drawer: CustomNavigationDrawer(
+        name:  passengerModelCurrentInfo!.name,
+        email: passengerModelCurrentInfo!.email,
+        phone: passengerModelCurrentInfo!.phone,
+      ),
       body: Stack(
         children: [
           GoogleMap(
@@ -211,7 +228,7 @@ class _MainScreenState extends State<MainScreen> {
               text: AppStrings.signOut,
               onPressed: () {
                 fAuth.signOut();
-                Navigator.push(context, MaterialPageRoute(builder: (c) => const LogInScreen()));
+                navigateToLogInScreen();
               }
           ),
         ],

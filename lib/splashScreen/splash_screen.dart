@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:portu_go_passenger/constants.dart';
 import 'package:portu_go_passenger/mainScreens/main_screen.dart';
 
+import '../assistants/assistant_methods.dart';
 import '../authenticationScreens/login_screen.dart';
 import '../global/global.dart';
 
@@ -27,6 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   startTimer() {
+    fAuth.currentUser != null ? AssistantMethods.getCurrentOnlinePassengerInfo() : null;
     Timer(const Duration(seconds: splashScreenTimer), () async {
       // TODO: Check if this "await" prefix is necessary for the app.
       if(await fAuth.currentUser != null) {
