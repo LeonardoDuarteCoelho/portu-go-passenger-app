@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:portu_go_passenger/assistants/assistant_methods.dart';
 import 'package:portu_go_passenger/authenticationScreens/login_screen.dart';
 import 'package:portu_go_passenger/components/button.dart';
+import 'package:portu_go_passenger/components/hamburger_button.dart';
 import 'package:portu_go_passenger/components/navigation_drawer.dart';
 import 'package:portu_go_passenger/constants.dart';
 import 'package:portu_go_passenger/global/global.dart';
@@ -24,6 +25,7 @@ class _MainScreenState extends State<MainScreen> {
   );
   final Completer<GoogleMapController> _controllerGoogleMap = Completer<GoogleMapController>();
   GoogleMapController? newGoogleMapController;
+  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -205,7 +207,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      key: scaffoldKey,
       drawer: CustomNavigationDrawer(
         name:  passengerModelCurrentInfo!.name,
         email: passengerModelCurrentInfo!.email,
@@ -224,12 +226,16 @@ class _MainScreenState extends State<MainScreen> {
             },
           ),
 
-          CustomButton(
-              text: AppStrings.signOut,
-              onPressed: () {
-                fAuth.signOut();
-                navigateToLogInScreen();
-              }
+          // Custom hamburger button for opening navigation drawer:
+          CustomHamburgerButton(
+              topPosition: AppSpaceValues.space5,
+              rightPosition: AppSpaceValues.space3,
+              onTap: () {
+                scaffoldKey.currentState!.openDrawer();
+              },
+              backgroundColor: AppColors.gray7,
+              icon: Icons.menu,
+              iconColor: AppColors.white,
           ),
         ],
       ),

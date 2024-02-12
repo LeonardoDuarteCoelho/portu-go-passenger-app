@@ -12,9 +12,6 @@ class AppStrings {
   // Error messages
   static const String errorAccountNotCreated = 'Houve um problema ao criar sua conta. Tente criar novamente.';
 
-  // 'main_screen.dart'
-  static const String signOut = 'Terminar sessão';
-
   // 'signup_screen.dart'
   static const String welcomeMessage = 'Bem-vindo à PortuGO!';
   static const String signingUpMessage = 'Cadastre inserindo os seus dados abaixo.';
@@ -51,17 +48,11 @@ class AppStrings {
   static const String logInError = 'Erro ao entrar na conta. Cheque se as credenciais estão correctas.';
   static const String logInErrorNoRecordOfEmail = 'Erro ao entrar na conta. Email não registado como passageiro.';
 
-  // 'home_screen.dart'
-  static const String homeScreenTitle = 'Home';
-
-  // 'ratings_screen.dart'
-  static const String ratingsScreenTitle = 'Avaliações';
-
-  // 'earnings_screen.dart'
-  static const String earningsScreenTitle = 'Renda';
-
-  // 'profile_screen.dart'
-  static const String profileScreenTitle = 'Perfil';
+  // 'navigation_drawer.dart'
+  static const String history = 'Histórico';
+  static const String profile = 'Perfil';
+  static const String news = 'Novidades';
+  static const String signOut = 'Terminar sessão';
 }
 
 class AppColors {
