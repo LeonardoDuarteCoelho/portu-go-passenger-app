@@ -131,24 +131,30 @@ class _CustomNavigationDrawerState extends State<CustomNavigationDrawer> {
               textColor: bodyText,
               iconPadding: AppSpaceValues.space5,
               icon: Icons.history,
-              iconSize: AppSpaceValues.space4,
+            iconColor: bodyIcon,
+            iconSize: AppSpaceValues.space4,
           ),
+
           CustomListTile(
             onTap: () { print("test"); },
             text: AppStrings.profile,
             textColor: bodyText,
             iconPadding: AppSpaceValues.space5,
             icon: Icons.person,
+            iconColor: bodyIcon,
             iconSize: AppSpaceValues.space4,
           ),
+
           CustomListTile(
             onTap: () { print("test"); },
             text: AppStrings.news,
             textColor: bodyText,
             iconPadding: AppSpaceValues.space5,
             icon: Icons.info_outline,
+            iconColor: bodyIcon,
             iconSize: AppSpaceValues.space4,
           ),
+
           CustomListTile(
             onTap: () {
               fAuth.signOut();
@@ -158,6 +164,7 @@ class _CustomNavigationDrawerState extends State<CustomNavigationDrawer> {
             textColor: bodyText,
             iconPadding: AppSpaceValues.space5,
             icon: Icons.logout,
+            iconColor: bodyIcon,
             iconSize: AppSpaceValues.space4,
           ),
         ],

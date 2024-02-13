@@ -5,20 +5,20 @@ class CustomHamburgerButton extends StatelessWidget {
   final double topPosition;
   final double? leftPosition;
   final double? rightPosition;
-  final VoidCallback onTap;
   final Color backgroundColor;
-  final IconData icon;
   final Color iconColor;
+  final VoidCallback onTap;
+  final IconData icon;
 
   const CustomHamburgerButton({
     Key? key,
     required this.topPosition,
     this.leftPosition,
     this.rightPosition,
+    this.backgroundColor = AppColors.indigo7Transparent90,
+    this.iconColor = AppColors.white,
     required this.onTap,
-    required this.backgroundColor,
     required this.icon,
-    required this.iconColor,
   }) : super(key: key);
 
   @override

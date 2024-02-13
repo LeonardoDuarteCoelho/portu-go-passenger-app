@@ -13,7 +13,7 @@ class AppStrings {
   static const String errorAccountNotCreated = 'Houve um problema ao criar sua conta. Tente criar novamente.';
 
   // 'signup_screen.dart'
-  static const String welcomeMessage = 'Bem-vindo à PortuGO!';
+  static const String welcomeMessage = 'Bem-vindo ao PortuGO!';
   static const String signingUpMessage = 'Cadastre inserindo os seus dados abaixo.';
   static const String nameTextField = 'Nome e apelido';
   static const String emailTextField = 'Email';
@@ -53,15 +53,28 @@ class AppStrings {
   static const String profile = 'Perfil';
   static const String news = 'Novidades';
   static const String signOut = 'Terminar sessão';
+
+  // 'main_screen.dart'
+  static const String whereToPickUpPassenger = 'Onde devemos buscá-lo?';
+  static const String currentLocation = 'Selecionado: ';
+  static const String whereIsTheUserDestination = 'Aonde desejas ir?';
+  static const String selectedDestination = 'Selecionado: ';
+  static const String confirmRide = 'Confirmar viagem';
 }
 
 class AppColors {
   // Essential colors:
   static const Color black = Color(0xFF000000);
-  static const Color blackTransparent = Color(0x80000000);
+  static const Color blackTransparent90 = Color(0xE6000000);
+  static const Color blackTransparent80 = Color(0xCC000000);
+  static const Color blackTransparent50 = Color(0x80000000);
+
   static const Color white = Color(0xFFFFFFFF);
-  static const Color whiteTransparent = Color(0x80FFFFFF);
+  static const Color whiteTransparent90 = Color(0xE6FFFFFF);
+  static const Color whiteTransparent80 = Color(0xCCFFFFFF);
+  static const Color whiteTransparent50 = Color(0x80FFFFFF);
   static const Color transparent = Color(0x00000000);
+
   static const Color success = Colors.green;
   static const Color error = Colors.red;
 
@@ -83,7 +96,11 @@ class AppColors {
   static const Color indigo4 = Color(0xFF748FFC);
   static const Color indigo5 = Color(0xFF5C7CFA);
   static const Color indigo6 = Color(0xFF4C6EF5);
+
   static const Color indigo7 = Color(0xFF4263EB);
+  static const Color indigo7Transparent90 = Color(0xE64263EB);
+  static const Color indigo7Transparent50 = Color(0x804263EB);
+
   static const Color indigo8 = Color(0xFF3B5BDB);
   static const Color indigo9 = Color(0xFF364FC7);
 }
