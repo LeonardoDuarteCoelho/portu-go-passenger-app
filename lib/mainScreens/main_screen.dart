@@ -7,10 +7,14 @@ import 'package:portu_go_passenger/assistants/assistant_methods.dart';
 import 'package:portu_go_passenger/authenticationScreens/login_screen.dart';
 import 'package:portu_go_passenger/components/button.dart';
 import 'package:portu_go_passenger/components/hamburger_button.dart';
+import 'package:portu_go_passenger/components/location_permission_warning.dart';
 import 'package:portu_go_passenger/components/navigation_drawer.dart';
-import 'package:portu_go_passenger/components/zoom_controls.dart';
 import 'package:portu_go_passenger/constants.dart';
 import 'package:portu_go_passenger/global/global.dart';
+import 'package:app_settings/app_settings.dart';
+import 'package:restart_app/restart_app.dart';
+
+import '../splashScreen/splash_screen.dart';
 
 class MainScreen extends StatefulWidget {
 
@@ -27,9 +31,9 @@ class MainScreen extends StatefulWidget {
 /// constant!
 class _MainScreenState extends State<MainScreen> {
   // Geolocator variables:
-  static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
+  static const CameraPosition _dummyLocation = CameraPosition(
+    target: LatLng(0, 0), // Placeholder location when app's still locating user.
+    zoom: 17,
   );
   Position? geolocatorPosition;
   LatLng? latitudeAndLongitudePosition;
@@ -39,17 +43,27 @@ class _MainScreenState extends State<MainScreen> {
   final Completer<GoogleMapController> _controllerGoogleMap = Completer<GoogleMapController>();
   GoogleMapController? newGoogleMapController;
 
+  // Whether the app shows a warning telling the user to enable access to location or not.
+  bool ifUserGrantedLocationPermission = true;
+  LocationPermission? _locationPermission;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  // Height of the "request ride" container:
+  // Request ride container's height:
   double requestRideContainerHeight = 300;
+  // Map controls' height:
+  double mapControlsContainerHeight = 310;
 
   @override
   void initState() {
     super.initState();
+    checkLocationPermissionStatus();
   }
 
   navigateToLogInScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (c) => const LogInScreen()));
+  }
+
+  navigateToSplashScreen() {
+    Navigator.push(context, MaterialPageRoute(builder: (c) => const SplashScreen()));
   }
 
   setGoogleMapThemeToBlack (bool changeToBlackTheme) {
@@ -220,7 +234,21 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  // Function that'll give the user's current position on the map:
+  checkLocationPermissionStatus() async {
+    _locationPermission = await Geolocator.requestPermission();
+    if (_locationPermission == LocationPermission.always || _locationPermission == LocationPermission.whileInUse) {
+      setState(() {
+        ifUserGrantedLocationPermission = true;
+      });
+    } else {
+      setState(() {
+        ifUserGrantedLocationPermission = false;
+      });
+      // Show warning panel here. Since setState is called, build method will be called and can take care of showing the panel.
+    }
+  }
+
+  // Method that'll give the user's current position on the map:
   findPassengerPosition () async {
     geolocatorPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     passengerCurrentPosition = geolocatorPosition;
@@ -231,10 +259,13 @@ class _MainScreenState extends State<MainScreen> {
     // Adjusting camera based on the user's current position:
     cameraPosition = CameraPosition(
         target: latitudeAndLongitudePosition!,
-        zoom: 14
+        zoom: 17
     );
     // Updating camera position:
     newGoogleMapController?.animateCamera(CameraUpdate.newCameraPosition(cameraPosition!));
+
+    String humanReadableAddress = await AssistantMethods.searchAddressForGeographicCoordinates(passengerCurrentPosition!);
+    print('This is your address: ' + humanReadableAddress);
   }
 
   @override
@@ -249,8 +280,9 @@ class _MainScreenState extends State<MainScreen> {
       body: Stack(
         children: [
           // UI for the map:
+
           GoogleMap(
-            initialCameraPosition: _kGooglePlex,
+            initialCameraPosition: _dummyLocation,
             mapType: MapType.normal,
             myLocationEnabled: true,
             myLocationButtonEnabled: false,
@@ -264,20 +296,69 @@ class _MainScreenState extends State<MainScreen> {
             },
           ),
 
-          CustomZoomControls(
-            mapController: newGoogleMapController!,
-            positionBottom: 320,
-            positionLeft: AppSpaceValues.space3,
+          // Zoom controls:
+          Positioned(
+            left: AppSpaceValues.space3,
+            bottom: mapControlsContainerHeight,
+            child: Column(
+              children: [
+                FloatingActionButton(
+                  mini: true,
+                  heroTag: 'zoom_in',
+                  backgroundColor: AppColors.indigo7,
+                  onPressed: () {
+                    newGoogleMapController?.animateCamera(CameraUpdate.zoomIn());
+                  },
+                  child: const Icon(
+                    Icons.add,
+                    color: AppColors.white,
+                  ),
+                ),
+
+                const SizedBox(height: AppSpaceValues.space1),
+
+                FloatingActionButton(
+                  mini: true,
+                  heroTag: 'zoom_out',
+                  backgroundColor: AppColors.indigo7,
+                  onPressed: () {
+                    newGoogleMapController?.animateCamera(CameraUpdate.zoomOut());
+                  },
+                  child: const Icon(
+                    Icons.remove,
+                    color: AppColors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // My location button:
+          Positioned(
+            right: AppSpaceValues.space3,
+            bottom: mapControlsContainerHeight,
+            child: FloatingActionButton(
+              mini: true,
+              heroTag: 'my_location',
+              backgroundColor: AppColors.indigo7,
+              onPressed: () {
+                newGoogleMapController?.animateCamera(CameraUpdate.newCameraPosition(cameraPosition!));
+              },
+              child: const Icon(
+                Icons.my_location,
+                color: AppColors.white,
+              ),
+            ),
           ),
 
           // Custom hamburger button for opening navigation drawer:
           CustomHamburgerButton(
-              topPosition: AppSpaceValues.space5,
-              rightPosition: AppSpaceValues.space3,
-              onTap: () {
-                scaffoldKey.currentState!.openDrawer();
-              },
-              icon: Icons.menu,
+            topPosition: AppSpaceValues.space5,
+            rightPosition: AppSpaceValues.space3,
+            onTap: () {
+              scaffoldKey.currentState!.openDrawer();
+            },
+            icon: Icons.menu,
           ),
 
 /***************************************************************************************************/
@@ -357,7 +438,9 @@ class _MainScreenState extends State<MainScreen> {
                             size: AppSpaceValues.space4,
                             color: AppColors.indigo7,
                           ),
+
                           const SizedBox(width: AppSpaceValues.space3),
+
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -405,10 +488,12 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ),
           ),
+
+          if (!ifUserGrantedLocationPermission) ...[
+            const LocationPermissionWarning(),
+          ],
         ],
       ),
     );
   }
 }
-
-

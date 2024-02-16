@@ -9,8 +9,11 @@ class AppStrings {
   static const String accountCreated = 'Conta criada com sucesso!';
   static const String carInfoSaved = 'Informações do carro guardadas.';
 
-  // Error messages
-  static const String errorAccountNotCreated = 'Houve um problema ao criar sua conta. Tente criar novamente.';
+  // Error strings
+  /// This string is integral for the geodecoding-via-API process (Check 'assistant_methods.dart'). Be mindful when editing it.
+  static const String geoDecodingError = 'Erro na decodificação da localização.';
+  /// This string is integral for the geodecoding-via-API process (Check 'assistant_methods.dart'). Be mindful when editing it.
+  static const String connectToApiError = 'Erro na conexão entre a app e a API.';
 
   // 'signup_screen.dart'
   static const String welcomeMessage = 'Bem-vindo ao PortuGO!';
@@ -60,6 +63,17 @@ class AppStrings {
   static const String whereIsTheUserDestination = 'Aonde desejas ir?';
   static const String selectedDestination = 'Selecionado: ';
   static const String confirmRide = 'Confirmar viagem';
+
+  // 'location_permission_warning.dart'
+  static const String permissionDenied = 'Permissão negada';
+  static const String permissionIsNecessaryForApp = 'Para que a aplicação PortuGO funcione, é necessário permitir que a app aceda à sua localização.';
+  static const String enablingPermissionStepOne = '1. Aperte em "Conceder permissão"';
+  static const String enablingPermissionStepTwo = '2. Vá para "Permissões"';
+  static const String enablingPermissionStepThree = '3. Abaixo de "Não permitido", aperte em "Localização"';
+  static const String enablingPermissionStepFour = '4. Selecione a opção que permita a app ter acesso a vossa geolocalização (recomendamos a opção "Permitir durante o uso do app")';
+  static const String enablingPermissionStepFive = '5. Por fim, volte para a aplicação, aperte em "Reiniciar app" e já está!';
+  static const String enablePermission = 'Conceder permissão';
+  static const String restartApp = 'Reiniciar app';
 }
 
 class AppColors {
@@ -110,6 +124,7 @@ class AppFontFamilies {
 }
 
 class AppFontSizes {
+  static const double xxxl = 56;
   static const double xxl = 40;
   static const double xl = 32;
   static const double l = 24;
@@ -151,4 +166,6 @@ class AppSpaceValues {
   static const double space7 = 60;
   static const double space8 = 70;
   static const double space9 = 80;
+  static const double space10 = 90;
+  static const double space11 = 100;
 }

@@ -15,7 +15,7 @@ class CustomHamburgerButton extends StatelessWidget {
     required this.topPosition,
     this.leftPosition,
     this.rightPosition,
-    this.backgroundColor = AppColors.indigo7Transparent90,
+    this.backgroundColor = AppColors.indigo7,
     this.iconColor = AppColors.white,
     required this.onTap,
     required this.icon,

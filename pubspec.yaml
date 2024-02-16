@@ -41,6 +41,9 @@ dependencies:
   fluttertoast: ^8.2.4
   google_maps_flutter: ^2.5.3
   geolocator: ^10.1.1
+  app_settings: ^5.1.1
+  restart_app: ^1.2.1
+  http: ^1.2.0
 
 dev_dependencies:
   flutter_test:

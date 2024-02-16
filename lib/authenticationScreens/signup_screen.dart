@@ -134,7 +134,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       navigateToSplashScreen();
     } else {
       setNavigatorPop();
-      showToaster(AppStrings.errorAccountNotCreated);
+      showToaster(AppStrings.signUpError);
     }
   }
 
