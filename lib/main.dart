@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:portu_go_passenger/infoHandler/app_info.dart';
 import 'package:portu_go_passenger/splashScreen/splash_screen.dart';
+import 'package:provider/provider.dart';
 // import 'package:portu_go_driver/constants.dart';
 // import 'package:portu_go_driver/splashScreen/splash_screen.dart';
 
@@ -18,7 +20,6 @@ import 'package:portu_go_passenger/splashScreen/splash_screen.dart';
 /// before running the app (like initializing Firebase or other services) way more viable.
 ///
 /// Added Firebase connection. Credentials are all located at 'google-services.json'
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -42,14 +43,17 @@ void main() async {
 
   runApp(
     MyApp(
-      child: MaterialApp(
-        title: 'PortuGO',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-          useMaterial3: true,
+      child: ChangeNotifierProvider(
+        create: (context) => AppInfo(),
+        child: MaterialApp(
+          title: 'PortuGO',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+            useMaterial3: true,
+          ),
+          home: const SplashScreen(),
+          debugShowCheckedModeBanner: false,
         ),
-        home: const SplashScreen(),
-        debugShowCheckedModeBanner: false,
       )
     ),
   );

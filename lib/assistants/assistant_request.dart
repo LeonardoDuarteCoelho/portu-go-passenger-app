@@ -15,7 +15,7 @@ class AssistantRequest {
         var decodedResponseData = jsonDecode(responseData);
         return decodedResponseData;
       } else {
-        return AppStrings.geoDecodingError;
+        return AppStrings.connectToApiError;
       }
     } catch(exception) {
       return AppStrings.connectToApiError;

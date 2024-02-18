@@ -12,6 +12,9 @@ import 'package:portu_go_passenger/components/navigation_drawer.dart';
 import 'package:portu_go_passenger/constants.dart';
 import 'package:portu_go_passenger/global/global.dart';
 import 'package:app_settings/app_settings.dart';
+import 'package:portu_go_passenger/infoHandler/app_info.dart';
+import 'package:portu_go_passenger/mainScreens/search_places_screen.dart';
+import 'package:provider/provider.dart';
 import 'package:restart_app/restart_app.dart';
 
 import '../splashScreen/splash_screen.dart';
@@ -56,6 +59,10 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     checkLocationPermissionStatus();
+  }
+
+  navigateToSearchPlacesScreen() {
+    Navigator.push(context, MaterialPageRoute(builder: (c) => SearchPlacesScreen()));
   }
 
   navigateToLogInScreen() {
@@ -247,6 +254,26 @@ class _MainScreenState extends State<MainScreen> {
       // Show warning panel here. Since setState is called, build method will be called and can take care of showing the panel.
     }
   }
+  
+  Future<String> getHumanReadableAddress() async {
+    String humanReadableAddress = await AssistantMethods.searchAddressForGeographicCoordinates(passengerCurrentPosition!, context);
+    return humanReadableAddress;
+  }
+
+  // Handling the location name so it may appear in the Text widget:
+  handleCurrentLocationText() {
+    String currentLocationText;
+    if (Provider.of<AppInfo>(context).passengerPickUpLocation != null) {
+      currentLocationText = Provider.of<AppInfo>(context).passengerPickUpLocation!.locationName!;
+    } else {
+      currentLocationText = AppStrings.currentLocation;
+    }
+    return currentLocationText;
+
+    /*Provider.of<AppInfo>(context).passengerPickUpLocation != null
+    ? Provider.of<AppInfo>(context).passengerPickUpLocation!.locationName!
+    : AppStrings.currentLocation;*/
+  }
 
   // Method that'll give the user's current position on the map:
   findPassengerPosition () async {
@@ -263,9 +290,7 @@ class _MainScreenState extends State<MainScreen> {
     );
     // Updating camera position:
     newGoogleMapController?.animateCamera(CameraUpdate.newCameraPosition(cameraPosition!));
-
-    String humanReadableAddress = await AssistantMethods.searchAddressForGeographicCoordinates(passengerCurrentPosition!);
-    print('This is your address: ' + humanReadableAddress);
+    getHumanReadableAddress();
   }
 
   @override
@@ -279,8 +304,8 @@ class _MainScreenState extends State<MainScreen> {
       ),
       body: Stack(
         children: [
-          // UI for the map:
 
+          // UI FOR THE MAP:
           GoogleMap(
             initialCameraPosition: _dummyLocation,
             mapType: MapType.normal,
@@ -361,9 +386,9 @@ class _MainScreenState extends State<MainScreen> {
             icon: Icons.menu,
           ),
 
-/***************************************************************************************************/
+/*****************************************************************************************************/
 
-          // UI for searching location:
+          // UI FOR SEARCHING LOCATION:
           Positioned(
             bottom: 0,
             left: 0,
@@ -387,6 +412,7 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                   child: Column(
                     children: [
+
                       // "From X location..."
                       Row(
                         children: [
@@ -401,20 +427,26 @@ class _MainScreenState extends State<MainScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              const Text(
                                 AppStrings.whereToPickUpPassenger,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: AppColors.gray9,
                                   fontSize: AppFontSizes.ml,
                                   fontWeight: AppFontWeights.light,
                                 ),
                               ),
-                              Text(
-                                AppStrings.currentLocation,
-                                style: const TextStyle(
-                                  color: AppColors.gray9,
-                                  fontSize: AppFontSizes.sm,
-                                  fontWeight: AppFontWeights.regular,
+                              SizedBox(
+                                width: 280,
+                                child: Text(
+                                  handleCurrentLocationText(), // Returning a string.
+                                  softWrap: true,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: const TextStyle(
+                                    color: AppColors.gray9,
+                                    fontSize: AppFontSizes.sm,
+                                    fontWeight: AppFontWeights.regular,
+                                  ),
                                 ),
                               ),
                             ],
@@ -431,38 +463,43 @@ class _MainScreenState extends State<MainScreen> {
                       const SizedBox(height: AppSpaceValues.space2),
 
                       // "... To Y destination."
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.edit_location_outlined,
-                            size: AppSpaceValues.space4,
-                            color: AppColors.indigo7,
-                          ),
-
-                          const SizedBox(width: AppSpaceValues.space3),
-
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                AppStrings.whereIsTheUserDestination,
-                                style: const TextStyle(
-                                  color: AppColors.gray9,
-                                  fontSize: AppFontSizes.ml,
-                                  fontWeight: AppFontWeights.light,
+                      GestureDetector(
+                        onTap: () {
+                          navigateToSearchPlacesScreen();
+                        },
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.edit_location_outlined,
+                              size: AppSpaceValues.space4,
+                              color: AppColors.indigo7,
+                            ),
+                        
+                            const SizedBox(width: AppSpaceValues.space3),
+                        
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  AppStrings.whereIsTheUserDestination,
+                                  style: const TextStyle(
+                                    color: AppColors.gray9,
+                                    fontSize: AppFontSizes.ml,
+                                    fontWeight: AppFontWeights.light,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                AppStrings.selectedDestination,
-                                style: const TextStyle(
-                                  color: AppColors.gray9,
-                                  fontSize: AppFontSizes.sm,
-                                  fontWeight: AppFontWeights.regular,
+                                Text(
+                                  AppStrings.selectedDestination,
+                                  style: const TextStyle(
+                                    color: AppColors.gray9,
+                                    fontSize: AppFontSizes.sm,
+                                    fontWeight: AppFontWeights.regular,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
 
                       const SizedBox(height: AppSpaceValues.space2),

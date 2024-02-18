@@ -10,9 +10,7 @@ class AppStrings {
   static const String carInfoSaved = 'Informações do carro guardadas.';
 
   // Error strings
-  /// This string is integral for the geodecoding-via-API process (Check 'assistant_methods.dart'). Be mindful when editing it.
-  static const String geoDecodingError = 'Erro na decodificação da localização.';
-  /// This string is integral for the geodecoding-via-API process (Check 'assistant_methods.dart'). Be mindful when editing it.
+  /// This string is integral for the connections between APIs and the app (Check 'assistant_methods.dart'). Be mindful when editing it.
   static const String connectToApiError = 'Erro na conexão entre a app e a API.';
 
   // 'signup_screen.dart'
@@ -61,7 +59,7 @@ class AppStrings {
   static const String whereToPickUpPassenger = 'Onde devemos buscá-lo?';
   static const String currentLocation = 'Selecionado: ';
   static const String whereIsTheUserDestination = 'Aonde desejas ir?';
-  static const String selectedDestination = 'Selecionado: ';
+  static const String selectedDestination = 'Selecione um local.';
   static const String confirmRide = 'Confirmar viagem';
 
   // 'location_permission_warning.dart'
@@ -74,6 +72,10 @@ class AppStrings {
   static const String enablingPermissionStepFive = '5. Por fim, volte para a aplicação, aperte em "Reiniciar app" e já está!';
   static const String enablePermission = 'Conceder permissão';
   static const String restartApp = 'Reiniciar app';
+
+  // 'search_places_screen-dart'
+  static const String findLocation = 'Selecione um local';
+  static const String findLocationHintText = 'Procure aqui...';
 }
 
 class AppColors {
