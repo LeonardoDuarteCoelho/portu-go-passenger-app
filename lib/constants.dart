@@ -6,6 +6,7 @@ class AppStrings {
   static const String createAccountButton = 'Criar conta';
   static const String loading = 'A processar. Aguarde...';
   static const String loading2 = 'Inicializando app...';
+  static const String loading3 = 'Por favor, aguarde...';
   static const String accountCreated = 'Conta criada com sucesso!';
   static const String carInfoSaved = 'Informações do carro guardadas.';
 
@@ -57,7 +58,6 @@ class AppStrings {
 
   // 'main_screen.dart'
   static const String whereToPickUpPassenger = 'Onde devemos buscá-lo?';
-  static const String currentLocation = 'Selecionado: ';
   static const String whereIsTheUserDestination = 'Aonde desejas ir?';
   static const String selectedDestination = 'Selecione um local.';
   static const String confirmRide = 'Confirmar viagem';
@@ -73,9 +73,14 @@ class AppStrings {
   static const String enablePermission = 'Conceder permissão';
   static const String restartApp = 'Reiniciar app';
 
-  // 'search_places_screen-dart'
+  // 'search_places_screen.dart'
   static const String findLocation = 'Selecione um local';
   static const String findLocationHintText = 'Procure aqui...';
+
+  // 'place_prediction_tile.dart'
+  /// This string is integral for the logic behind getting the user's destination (Check 'main_screen.dart'). Be mindful when editing it.
+  static const String destinationSelected = 'Destino selecionado!';
+  static const String originSelected = 'Ponto de busca selecionado!';
 }
 
 class AppColors {
