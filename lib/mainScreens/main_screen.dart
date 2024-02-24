@@ -51,13 +51,20 @@ class _MainScreenState extends State<MainScreen> {
 
   // Map route variables:
   dynamic responseFromSearchScreen;
-  LatLng? originLatitudeAndLongitude;
-  LatLng? destinationLatitudeAndLongitude;
   DirectionRouteDetails? directionRouteDetails;
   List<LatLng> polylineCoordinatesList = [];
   Set<Polyline> polylineSet = {};
+  LatLngBounds? latLngBounds;
+  Set<Marker> markersSet = {};
 
   bool ifUserGrantedLocationPermission = true; // Whether the app shows a warning telling the user to enable access to location or not.
+  bool showRouteConfirmationOptions = false; // Show the user options to confirm or deny the pick-up-to-drop-off route.
+  bool ifRouteIsConfirmed = false;
+  String? pickUpLocationText;
+  String? dropOffLocationText;
+  String passengerName = '';
+  String passengerEmail = '';
+  String passengerPhone = '';
   LocationPermission? _locationPermission;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   double requestRideContainerHeight = 300; // Request ride container's height.
@@ -251,6 +258,7 @@ class _MainScreenState extends State<MainScreen> {
 
   checkLocationPermissionStatus() async {
     _locationPermission = await Geolocator.requestPermission();
+
     if (_locationPermission == LocationPermission.always || _locationPermission == LocationPermission.whileInUse) {
       setState(() {
         ifUserGrantedLocationPermission = true;
@@ -259,35 +267,12 @@ class _MainScreenState extends State<MainScreen> {
       setState(() {
         ifUserGrantedLocationPermission = false;
       });
-      // Show warning panel here. Since setState is called, build method will be called and can take care of showing the panel.
     }
   }
   
   Future<String> getHumanReadableAddress() async {
     String humanReadableAddress = await AssistantMethods.searchAddressForGeographicCoordinates(passengerCurrentPosition!, context);
     return humanReadableAddress;
-  }
-
-  // Handling the pick up location name so it may appear in the Text widget:
-  handlePickUpLocationText() {
-    String currentLocationText;
-    if (Provider.of<AppInfo>(context).passengerPickUpLocation != null) {
-      currentLocationText = Provider.of<AppInfo>(context).passengerPickUpLocation!.locationName!;
-    } else {
-      currentLocationText = AppStrings.selectedDestination;
-    }
-    return currentLocationText;
-  }
-
-  // Handling the drop off location name so it may appear in the Text widget:
-  handleDropOffLocationText() {
-    String currentLocationText;
-    if (Provider.of<AppInfo>(context).passengerDropOffLocation != null) {
-      currentLocationText = Provider.of<AppInfo>(context).passengerDropOffLocation!.locationName!;
-    } else {
-      currentLocationText = AppStrings.selectedDestination;
-    }
-    return currentLocationText;
   }
 
   // Method that'll give the user's current position on the map:
@@ -306,6 +291,57 @@ class _MainScreenState extends State<MainScreen> {
     // Updating camera position:
     newGoogleMapController?.animateCamera(CameraUpdate.newCameraPosition(cameraPosition!));
     getHumanReadableAddress();
+    passengerName = passengerModelCurrentInfo!.name!;
+    passengerEmail = passengerModelCurrentInfo!.email!;
+    passengerPhone = passengerModelCurrentInfo!.phone!;
+  }
+
+  Widget setShowRouteConfirmationOptions(bool showOptions, bool routeIsConfirmed) {
+    if(showOptions && !routeIsConfirmed) {
+      return Column(
+        children: [
+          FloatingActionButton(
+            mini: true,
+            heroTag: 'confirm_route',
+            backgroundColor: AppColors.success,
+            onPressed: () {
+              setState(() {
+                ifRouteIsConfirmed = true;
+              });
+            },
+            child: const Icon(
+              Icons.check,
+              color: AppColors.white,
+            ),
+          ),
+
+          const SizedBox(height: AppSpaceValues.space1),
+
+          FloatingActionButton(
+            mini: true,
+            heroTag: 'cancel_route',
+            backgroundColor: AppColors.error,
+            onPressed: () {
+              setState(() {
+                markersSet.clear();
+                polylineSet.clear();
+                showRouteConfirmationOptions = false;
+                ifRouteIsConfirmed = false;
+                dropOffLocationText = AppStrings.selectDestination;
+              });
+            },
+            child: const Icon(
+              Icons.close,
+              color: AppColors.white,
+            ),
+          ),
+
+          const SizedBox(height: AppSpaceValues.space3),
+        ],
+      );
+    } else {
+      return const Column();
+    }
   }
 
   @override
@@ -313,14 +349,15 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       key: scaffoldKey,
       drawer: CustomNavigationDrawer(
-        name:  passengerModelCurrentInfo!.name,
-        email: passengerModelCurrentInfo!.email,
-        phone: passengerModelCurrentInfo!.phone,
+        name: passengerName,
+        email: passengerEmail,
+        phone: passengerPhone,
       ),
       body: Stack(
         children: [
 
-          // UI FOR THE MAP:
+/********************************************** UI FOR THE MAP **********************************************/
+
           GoogleMap(
             initialCameraPosition: _dummyLocation,
             mapType: MapType.normal,
@@ -329,6 +366,7 @@ class _MainScreenState extends State<MainScreen> {
             zoomGesturesEnabled: true,
             zoomControlsEnabled: false,
             polylines: polylineSet,
+            markers: markersSet,
             onMapCreated: (GoogleMapController controller) {
               _controllerGoogleMap.complete(controller);
               newGoogleMapController = controller;
@@ -374,21 +412,26 @@ class _MainScreenState extends State<MainScreen> {
             ),
           ),
 
-          // My location button:
           Positioned(
             right: AppSpaceValues.space3,
             bottom: mapControlsContainerHeight,
-            child: FloatingActionButton(
-              mini: true,
-              heroTag: 'my_location',
-              backgroundColor: AppColors.indigo7,
-              onPressed: () {
-                newGoogleMapController?.animateCamera(CameraUpdate.newCameraPosition(cameraPosition!));
-              },
-              child: const Icon(
-                Icons.my_location,
-                color: AppColors.white,
-              ),
+            child: Column(
+              children: [
+                setShowRouteConfirmationOptions(showRouteConfirmationOptions, ifRouteIsConfirmed),
+
+                FloatingActionButton(
+                  mini: true,
+                  heroTag: 'my_location',
+                  backgroundColor: AppColors.indigo7,
+                  onPressed: () {
+                    newGoogleMapController?.animateCamera(CameraUpdate.newCameraPosition(cameraPosition!));
+                  },
+                  child: const Icon(
+                    Icons.my_location,
+                    color: AppColors.white,
+                  ),
+                ),
+              ],
             ),
           ),
 
@@ -402,9 +445,8 @@ class _MainScreenState extends State<MainScreen> {
             icon: Icons.menu,
           ),
 
-/*****************************************************************************************************/
+/********************************************** UI FOR SEARCHING LOCATION **********************************************/
 
-          // UI FOR SEARCHING LOCATION:
           Positioned(
             bottom: 0,
             left: 0,
@@ -430,51 +472,47 @@ class _MainScreenState extends State<MainScreen> {
                     children: [
 
                       // "From X location..."
-                      GestureDetector(
-                        onTap: () {
-                          ifUserSearchesPickUpLocation = true;
-                          ifUserSearchesDropOffLocation = false;
-                          responseFromSearchScreen = Navigator.push(context, MaterialPageRoute(builder: (c) => SearchPlacesScreen()));
-                        },
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.person_pin_circle_outlined,
-                              size: AppSpaceValues.space4,
-                              color: AppColors.indigo7,
-                            ),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.person_pin_circle_outlined,
+                            size: AppSpaceValues.space4,
+                            color: AppColors.indigo7,
+                          ),
 
-                            const SizedBox(width: AppSpaceValues.space2),
+                          const SizedBox(width: AppSpaceValues.space2),
 
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  AppStrings.whereToPickUpPassenger,
-                                  style: TextStyle(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                AppStrings.yourLocation,
+                                style: TextStyle(
+                                  color: AppColors.gray9,
+                                  fontSize: AppFontSizes.ml,
+                                  fontWeight: AppFontWeights.light,
+                                ),
+                              ),
+                              SizedBox(
+                                width: requestRideContainerHeight,
+                                child: Text(
+                                  // Handling the pick up location name:
+                                  (Provider.of<AppInfo>(context).passengerPickUpLocation != null)
+                                  ? pickUpLocationText = Provider.of<AppInfo>(context).passengerPickUpLocation!.locationName!
+                                  : pickUpLocationText = AppStrings.currentLocation,
+                                  softWrap: true,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: const TextStyle(
                                     color: AppColors.gray9,
-                                    fontSize: AppFontSizes.ml,
-                                    fontWeight: AppFontWeights.light,
+                                    fontSize: AppFontSizes.sm,
+                                    fontWeight: AppFontWeights.regular,
                                   ),
                                 ),
-                                SizedBox(
-                                  width: 280,
-                                  child: Text(
-                                    handlePickUpLocationText(), // Returning a string.
-                                    softWrap: true,
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                    style: const TextStyle(
-                                      color: AppColors.gray9,
-                                      fontSize: AppFontSizes.sm,
-                                      fontWeight: AppFontWeights.regular,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
 
                       const SizedBox(height: AppSpaceValues.space2),
@@ -488,17 +526,19 @@ class _MainScreenState extends State<MainScreen> {
                       // "... To Y destination."
                       GestureDetector(
                         onTap: () async {
-                          ifUserSearchesPickUpLocation = false;
-                          ifUserSearchesDropOffLocation = true;
                           responseFromSearchScreen = await Navigator.push(context, MaterialPageRoute(builder: (c) => SearchPlacesScreen()));
                           if(responseFromSearchScreen == AppStrings.destinationSelected) {
                             await drawPolylineFromOriginToDestination();
+                            setState(() {
+                              showRouteConfirmationOptions = true;
+                              ifRouteIsConfirmed = false;
+                            });
                           }
                         },
                         child: Row(
                           children: [
                             const Icon(
-                              Icons.not_listed_location_outlined,
+                              Icons.edit_location_outlined,
                               size: AppSpaceValues.space4,
                               color: AppColors.indigo7,
                             ),
@@ -516,12 +556,21 @@ class _MainScreenState extends State<MainScreen> {
                                     fontWeight: AppFontWeights.light,
                                   ),
                                 ),
-                                Text(
-                                  handleDropOffLocationText(), // Returning a string.
-                                  style: const TextStyle(
-                                    color: AppColors.gray9,
-                                    fontSize: AppFontSizes.sm,
-                                    fontWeight: AppFontWeights.regular,
+                                SizedBox(
+                                  width: requestRideContainerHeight,
+                                  child: Text(
+                                    // Handling the drop off location name:
+                                    (Provider.of<AppInfo>(context).passengerDropOffLocation != null && showRouteConfirmationOptions)
+                                    ? dropOffLocationText = Provider.of<AppInfo>(context).passengerDropOffLocation!.locationName!
+                                    : dropOffLocationText = AppStrings.selectDestination,
+                                    softWrap: true,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    style: const TextStyle(
+                                      color: AppColors.gray9,
+                                      fontSize: AppFontSizes.sm,
+                                      fontWeight: AppFontWeights.regular,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -562,16 +611,19 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
+  // Function responsible for tracing the polyline-based route when the passenger selects his destination.
   Future<void> drawPolylineFromOriginToDestination() async {
     // Couldn't initialize some of the variables outside this method.
     var originPosition = Provider.of<AppInfo>(context, listen: false).passengerPickUpLocation;
     var destinationPosition = Provider.of<AppInfo>(context, listen: false).passengerDropOffLocation;
+    LatLng originLatitudeAndLongitude;
+    LatLng destinationLatitudeAndLongitude;
 
     originLatitudeAndLongitude = LatLng(originPosition!.locationLatitude!, originPosition.locationLongitude!);
     destinationLatitudeAndLongitude = LatLng(destinationPosition!.locationLatitude!, destinationPosition.locationLongitude!);
 
     showDialog(context: context, builder: (BuildContext context) => ProgressDialog(message: AppStrings.loading3));
-    directionRouteDetails = await AssistantMethods.obtainOriginToDestinationDirectionDetails(originLatitudeAndLongitude!, destinationLatitudeAndLongitude!);
+    directionRouteDetails = await AssistantMethods.obtainOriginToDestinationDirectionDetails(originLatitudeAndLongitude, destinationLatitudeAndLongitude);
     setNavigatorPop();
 
     PolylinePoints polylinePoints = PolylinePoints();
@@ -584,20 +636,64 @@ class _MainScreenState extends State<MainScreen> {
         polylineCoordinatesList.add(LatLng(pointLatLng.latitude, pointLatLng.longitude));
       });
     }
-
     polylineSet.clear();
 
     setState(() {
       Polyline polyline = Polyline(
-        polylineId: const PolylineId('PolylineID'),
-        color: AppColors.indigo7,
+        polylineId: const PolylineId('polylineId'),
+        color: AppColors.indigo5,
         jointType: JointType.round,
         points: polylineCoordinatesList,
         startCap: Cap.roundCap,
         endCap: Cap.roundCap,
         geodesic: true,
       );
-
       polylineSet.add(polyline);
-    });}
+    });
+
+    // Conditions to better calibrate the camera so the user, when selecting his destination, can easily see the route in its entirety.
+    if(originLatitudeAndLongitude.latitude > destinationLatitudeAndLongitude.latitude
+    && originLatitudeAndLongitude.longitude > destinationLatitudeAndLongitude.longitude) {
+      latLngBounds = LatLngBounds(
+        southwest: destinationLatitudeAndLongitude,
+        northeast: originLatitudeAndLongitude
+      );
+    } else if(originLatitudeAndLongitude.longitude > destinationLatitudeAndLongitude.longitude) {
+      latLngBounds = LatLngBounds(
+        southwest: LatLng(originLatitudeAndLongitude.latitude, destinationLatitudeAndLongitude.longitude),
+        northeast: LatLng(destinationLatitudeAndLongitude.latitude, originLatitudeAndLongitude.longitude),
+      );
+    } else if(originLatitudeAndLongitude.latitude > destinationLatitudeAndLongitude.latitude) {
+      latLngBounds = LatLngBounds(
+        southwest: LatLng(destinationLatitudeAndLongitude.latitude, originLatitudeAndLongitude.longitude),
+        northeast: LatLng(originLatitudeAndLongitude.latitude, destinationLatitudeAndLongitude.longitude),
+      );
+    } else {
+      latLngBounds = LatLngBounds(
+          southwest: originLatitudeAndLongitude,
+          northeast: destinationLatitudeAndLongitude
+      );
+    }
+    // Adjusting camera for better displaying the polyline-based route:
+    newGoogleMapController!.animateCamera(CameraUpdate.newLatLngBounds(latLngBounds!, AppSpaceValues.space11));
+
+    Marker originMarker = Marker(
+      markerId: const MarkerId('originMarkerId'),
+      infoWindow: InfoWindow(title: originPosition.locationName, snippet: AppStrings.yourLocation),
+      position: originLatitudeAndLongitude,
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+    );
+
+    Marker destinationMarker = Marker(
+      markerId: const MarkerId('destinationMarkerId'),
+      infoWindow: InfoWindow(title: destinationPosition.locationName, snippet: AppStrings.destination),
+      position: destinationLatitudeAndLongitude,
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+    );
+
+    setState(() {
+      markersSet.add(originMarker);
+      markersSet.add(destinationMarker);
+    });
+  }
 }

@@ -57,10 +57,12 @@ class AppStrings {
   static const String signOut = 'Terminar sessão';
 
   // 'main_screen.dart'
-  static const String whereToPickUpPassenger = 'Onde devemos buscá-lo?';
+  static const String yourLocation = 'Sua localização';
   static const String whereIsTheUserDestination = 'Aonde desejas ir?';
-  static const String selectedDestination = 'Selecione um local.';
+  static const String currentLocation = 'A buscar sua localização...';
+  static const String selectDestination = 'Selecione um local';
   static const String confirmRide = 'Confirmar viagem';
+  static const String destination = 'Destino';
 
   // 'location_permission_warning.dart'
   static const String permissionDenied = 'Permissão negada';
@@ -80,7 +82,6 @@ class AppStrings {
   // 'place_prediction_tile.dart'
   /// This string is integral for the logic behind getting the user's destination (Check 'main_screen.dart'). Be mindful when editing it.
   static const String destinationSelected = 'Destino selecionado!';
-  static const String originSelected = 'Ponto de busca selecionado!';
 }
 
 class AppColors {

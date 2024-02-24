@@ -31,19 +31,14 @@ class PlacePredictionTileDesign extends StatelessWidget {
     }
     if(responseApi['status'] == 'OK') {
       Directions directions = Directions();
+      // For navigating this JSON file, see documentation: https://developers.google.com/maps/documentation/places/web-service/details
       directions.locationName = responseApi['result']['name'];
       directions.locationId = placeId;
       directions.locationLatitude = responseApi['result']['geometry']['location']['lat'];
       directions.locationLongitude = responseApi['result']['geometry']['location']['lng'];
 
-      if(ifUserSearchesPickUpLocation) {
-        Provider.of<AppInfo>(context, listen: false).updatePickUpAddress(directions);
-        Navigator.pop(context, AppStrings.originSelected);
-      }
-      if(ifUserSearchesDropOffLocation) {
-        Provider.of<AppInfo>(context, listen: false).updateDropOffAddress(directions);
-        Navigator.pop(context, AppStrings.destinationSelected);
-      }
+      Provider.of<AppInfo>(context, listen: false).updateDropOffAddress(directions);
+      Navigator.pop(context, AppStrings.destinationSelected);
     }
   }
 

@@ -18,6 +18,8 @@ import '../constants.dart';
 class AssistantMethods {
   static Future<String> searchAddressForGeographicCoordinates(Position position, context) async {
     String apiUrl = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=$mapKey';
+    String addressNumber = '';
+    String streetName = '';
     String humanReadableAddress = '';
     var requestResponse = await AssistantRequest.receiveRequest(apiUrl);
 
@@ -25,7 +27,9 @@ class AssistantMethods {
     if(requestResponse != AppStrings.connectToApiError) {
       // Response that will contain the human-readable address. This syntax is used to navigate inside a JSON file.
       // (for more info check documentation: https://developers.google.com/maps/documentation/geocoding/start)
-      humanReadableAddress = requestResponse['results'][0]['formatted_address'];
+      streetName = requestResponse['results'][0]['address_components'][1]['long_name'];
+      addressNumber = requestResponse['results'][0]['address_components'][0]['long_name'];
+      humanReadableAddress = '$streetName $addressNumber';
       Directions passengerPickUpAddress = Directions(); // Storing the passenger's readable address data.
       passengerPickUpAddress.locationLatitude = position.latitude;
       passengerPickUpAddress.locationLongitude = position.longitude;
