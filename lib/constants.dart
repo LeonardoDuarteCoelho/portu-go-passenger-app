@@ -13,6 +13,7 @@ class AppStrings {
   // Error strings
   /// This string is integral for the connections between APIs and the app (Check 'assistant_methods.dart'). Be mindful when editing it.
   static const String connectToApiError = 'Erro na conexão entre a app e a API.';
+  static const String signUpError = 'Erro ao criar conta. Cheque sua conexão e tente novamente.';
 
   // 'signup_screen.dart'
   static const String welcomeMessage = 'Bem-vindo ao PortuGO!';
@@ -25,7 +26,6 @@ class AppStrings {
   static const String emailValidationToast = 'O email inserido não é válido.';
   static const String phoneValidationToast = 'Por favor, insira um número de telemóvel válido.';
   static const String passwordValidationToast = 'A palavra-passe deve ter pelo menos 5 dígitos.';
-  static const String signUpError = 'Erro ao criar conta. Cheque sua conexão e tente novamente.';
 
   // 'car_info_screen.dart'
   static const String greetingsUserMessage = 'Quase lá!';
@@ -63,6 +63,10 @@ class AppStrings {
   static const String selectDestination = 'Selecione um local';
   static const String confirmRide = 'Confirmar viagem';
   static const String destination = 'Destino';
+  static const String userNeedToSelectDestination = 'Para confirmar a viagem, selecione um destino.';
+  static const String userNeedToConfirmSelectedDestination = 'Por favor, confirme o destino selecionado.';
+  static const String noAvailableDriversNearby = 'Desculpe, mas não há motoristas disponíveis no momento.';
+  static const String waitToRequestRideAgain = 'Aguarde para confirmar a viagem novamente.';
 
   // 'location_permission_warning.dart'
   static const String permissionDenied = 'Permissão negada';

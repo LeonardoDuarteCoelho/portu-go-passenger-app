@@ -1,9 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:portu_go_passenger/assistants/assistant_geofire.dart';
 import 'package:portu_go_passenger/assistants/assistant_methods.dart';
 import 'package:portu_go_passenger/authenticationScreens/login_screen.dart';
 import 'package:portu_go_passenger/components/button.dart';
@@ -15,14 +18,17 @@ import 'package:portu_go_passenger/constants.dart';
 import 'package:portu_go_passenger/global/global.dart';
 import 'package:app_settings/app_settings.dart';
 import 'package:portu_go_passenger/infoHandler/app_info.dart';
+import 'package:portu_go_passenger/main.dart';
 import 'package:portu_go_passenger/mainScreens/search_places_screen.dart';
 import 'package:portu_go_passenger/models/direction_route_details.dart';
+import 'package:portu_go_passenger/models/nearby_available_drivers.dart';
 import 'package:provider/provider.dart';
 import 'package:restart_app/restart_app.dart';
 
 import '../splashScreen/splash_screen.dart';
 
 class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -36,6 +42,20 @@ class MainScreen extends StatefulWidget {
 /// Ignore the warnings from Flutter and DO NOT set the Text widgets as
 /// constant!
 class _MainScreenState extends State<MainScreen> {
+  bool ifUserGrantedLocationPermission = true; // Whether the app shows a warning telling the user to enable access to location or not.
+  bool showRouteConfirmationOptions = false; // Show the user options to confirm or deny the pick-up-to-drop-off route.
+  bool ifRouteIsConfirmed = false; // Check if user confirmed the route for selected destination.
+  String? pickUpLocationText;
+  String? dropOffLocationText;
+  String passengerName = '';
+  String passengerEmail = '';
+  String passengerPhone = '';
+  double requestRideContainerHeight = 260; // Request ride container's height.
+  double mapControlsContainerHeight = 300; // Map controls' height.
+  LocationPermission? _locationPermission;
+  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  List<NearbyAvailableDrivers> nearbyAvailableDriversList = [];
+
   // Geolocator variables:
   static const CameraPosition _dummyLocation = CameraPosition(
     target: LatLng(0, 0), // Placeholder location when app's still locating user.
@@ -57,18 +77,10 @@ class _MainScreenState extends State<MainScreen> {
   LatLngBounds? latLngBounds;
   Set<Marker> markersSet = {};
 
-  bool ifUserGrantedLocationPermission = true; // Whether the app shows a warning telling the user to enable access to location or not.
-  bool showRouteConfirmationOptions = false; // Show the user options to confirm or deny the pick-up-to-drop-off route.
-  bool ifRouteIsConfirmed = false;
-  String? pickUpLocationText;
-  String? dropOffLocationText;
-  String passengerName = '';
-  String passengerEmail = '';
-  String passengerPhone = '';
-  LocationPermission? _locationPermission;
-  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  double requestRideContainerHeight = 300; // Request ride container's height.
-  double mapControlsContainerHeight = 310; // Map controls' height.
+  // Geofire variables:
+  bool nearbyAvailableDriverKeysLoaded = false;
+  double locateNearDriversRadius = 10;
+  BitmapDescriptor? nearbyAvailableDriverIcon;
 
   @override
   void initState() {
@@ -286,14 +298,17 @@ class _MainScreenState extends State<MainScreen> {
     // Adjusting camera based on the user's current position:
     cameraPosition = CameraPosition(
         target: latitudeAndLongitudePosition!,
+        bearing: passengerCurrentPosition!.heading,
         zoom: 17
     );
     // Updating camera position:
     newGoogleMapController?.animateCamera(CameraUpdate.newCameraPosition(cameraPosition!));
     getHumanReadableAddress();
+    // Updating passenger's info for navigation drawer:
     passengerName = passengerModelCurrentInfo!.name!;
     passengerEmail = passengerModelCurrentInfo!.email!;
     passengerPhone = passengerModelCurrentInfo!.phone!;
+    initializeGeofireListener();
   }
 
   Widget setShowRouteConfirmationOptions(bool showOptions, bool routeIsConfirmed) {
@@ -344,8 +359,24 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  saveRideRequestInfo() {
+    nearbyAvailableDriversList = AssistantGeofire.nearbyAvailableDriversList;
+    searchNearestAvailableDrivers();
+  }
+
+  searchNearestAvailableDrivers() async {
+    // If there's no drivers available for the passenger...
+    if(nearbyAvailableDriversList.isEmpty) {
+      Fluttertoast.showToast(msg: AppStrings.noAvailableDriversNearby);
+      Fluttertoast.showToast(msg: AppStrings.waitToRequestRideAgain);
+      return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    createNearbyAvailableDriverMarker();
+
     return Scaffold(
       key: scaffoldKey,
       drawer: CustomNavigationDrawer(
@@ -358,29 +389,35 @@ class _MainScreenState extends State<MainScreen> {
 
 /********************************************** UI FOR THE MAP **********************************************/
 
-          GoogleMap(
-            initialCameraPosition: _dummyLocation,
-            mapType: MapType.normal,
-            myLocationEnabled: true,
-            myLocationButtonEnabled: false,
-            zoomGesturesEnabled: true,
-            zoomControlsEnabled: false,
-            polylines: polylineSet,
-            markers: markersSet,
-            onMapCreated: (GoogleMapController controller) {
-              _controllerGoogleMap.complete(controller);
-              newGoogleMapController = controller;
-              setGoogleMapThemeToBlack(false);
-              findPassengerPosition();
-            },
+          Padding(
+            padding: EdgeInsets.only(bottom: requestRideContainerHeight),
+            child: GoogleMap(
+              initialCameraPosition: _dummyLocation,
+              mapType: MapType.normal,
+              myLocationEnabled: true,
+              myLocationButtonEnabled: false,
+              compassEnabled: false,
+              rotateGesturesEnabled: false,
+              zoomGesturesEnabled: true,
+              zoomControlsEnabled: false,
+              polylines: polylineSet,
+              markers: markersSet,
+              onMapCreated: (GoogleMapController controller) {
+                _controllerGoogleMap.complete(controller);
+                newGoogleMapController = controller;
+                setGoogleMapThemeToBlack(false);
+                findPassengerPosition();
+              },
+            ),
           ),
 
-          // Zoom controls:
+          // Left-screen controls:
           Positioned(
-            left: AppSpaceValues.space3,
+            left: AppSpaceValues.space2,
             bottom: mapControlsContainerHeight,
             child: Column(
               children: [
+                // Zoom-in button:
                 FloatingActionButton(
                   mini: true,
                   heroTag: 'zoom_in',
@@ -396,6 +433,7 @@ class _MainScreenState extends State<MainScreen> {
 
                 const SizedBox(height: AppSpaceValues.space1),
 
+                // Zoom-out button:
                 FloatingActionButton(
                   mini: true,
                   heroTag: 'zoom_out',
@@ -412,13 +450,16 @@ class _MainScreenState extends State<MainScreen> {
             ),
           ),
 
+          // Right-screen controls:
           Positioned(
-            right: AppSpaceValues.space3,
+            right: AppSpaceValues.space2,
             bottom: mapControlsContainerHeight,
             child: Column(
               children: [
+                // Confirm/Discard route buttons:
                 setShowRouteConfirmationOptions(showRouteConfirmationOptions, ifRouteIsConfirmed),
 
+                // My location button:
                 FloatingActionButton(
                   mini: true,
                   heroTag: 'my_location',
@@ -457,11 +498,7 @@ class _MainScreenState extends State<MainScreen> {
               child: Container(
                 height: requestRideContainerHeight,
                 decoration: const BoxDecoration(
-                  color: AppColors.whiteTransparent90,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(AppSpaceValues.space4),
-                    topRight: Radius.circular(AppSpaceValues.space4),
-                  ),
+                  color: AppColors.white,
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
@@ -593,7 +630,13 @@ class _MainScreenState extends State<MainScreen> {
                         textColor: AppColors.white,
                         icon: Icons.check,
                         onPressed: () {
-
+                          if (Provider.of<AppInfo>(context, listen: false).passengerDropOffLocation != null && ifRouteIsConfirmed) {
+                            saveRideRequestInfo();
+                          } else if(showRouteConfirmationOptions && !ifRouteIsConfirmed) {
+                            Fluttertoast.showToast(msg: AppStrings.userNeedToConfirmSelectedDestination);
+                          } else {
+                            Fluttertoast.showToast(msg: AppStrings.userNeedToSelectDestination);
+                          }
                         },
                       )
                     ],
@@ -611,7 +654,7 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  // Function responsible for tracing the polyline-based route when the passenger selects his destination.
+  // Method responsible for tracing the polyline-based route when the passenger selects his destination.
   Future<void> drawPolylineFromOriginToDestination() async {
     // Couldn't initialize some of the variables outside this method.
     var originPosition = Provider.of<AppInfo>(context, listen: false).passengerPickUpLocation;
@@ -632,9 +675,9 @@ class _MainScreenState extends State<MainScreen> {
     polylineCoordinatesList.clear(); // Clearing previous polyline.
 
     if(decodedPolylinePointsList.isNotEmpty) {
-      decodedPolylinePointsList.forEach((PointLatLng pointLatLng) {
+      for (var pointLatLng in decodedPolylinePointsList) {
         polylineCoordinatesList.add(LatLng(pointLatLng.latitude, pointLatLng.longitude));
-      });
+      }
     }
     polylineSet.clear();
 
@@ -695,5 +738,92 @@ class _MainScreenState extends State<MainScreen> {
       markersSet.add(originMarker);
       markersSet.add(destinationMarker);
     });
+  }
+
+  initializeGeofireListener() {
+    Geofire.initialize('activeDrivers');
+    // The third parameter present in the 'queryAtLocation()' method represents the number of kilometers Geofire must act upon.
+    // For instance, if we put the value "5" on this parameter, it will detect drivers on a 5 kilometer radius from the passenger's location.
+    Geofire.queryAtLocation(passengerCurrentPosition!.latitude, passengerCurrentPosition!.longitude, locateNearDriversRadius)!.listen((map) {
+      print(map);
+      if (map != null) {
+        var callBack = map['callBack'];
+
+        // Latitude will be retrieved from map['latitude'].
+        // Longitude will be retrieved from map['longitude'].
+        // See more info in the geofire's documentation: https://pub.dev/packages/flutter_geofire
+        switch (callBack) {
+          // This case will pick every single available nearby driver from the database into an object,
+          // using 'NearbyAvailableDrivers' model class.
+          //
+          // The reason why this logic is inside this case is because the 'onKeyEntered' method picks the ID for the active drivers.
+          // So, 'onKeyEntered' can be translated to "whenever any driver becomes available/online".
+          case Geofire.onKeyEntered:
+            NearbyAvailableDrivers nearbyAvailableDriver = NearbyAvailableDrivers(); // Instantiating nearby available drivers as an object.
+            nearbyAvailableDriver.driverLocationLatitude = map['latitude']; // Picking up the nearby available driver's latitude.
+            nearbyAvailableDriver.driverLocationLongitude = map['longitude']; // Picking up the nearby available driver's longitude.
+            nearbyAvailableDriver.driverId = map['key']; // Picking up the nearby available driver's ID.
+            AssistantGeofire.nearbyAvailableDriversList.add(nearbyAvailableDriver); // Adding the nearby available drivers one by one to the list.
+            if(nearbyAvailableDriverKeysLoaded) displayNearbyAvailableDriversOnTheMap();
+            break;
+
+          // 'onKeyExited' can be translated to "whenever any driver becomes unavailable/enters offline mode".
+          case Geofire.onKeyExited:
+            AssistantGeofire.deleteOfflineDriverFromNearbyAvailableDriversList(map['key']);
+            displayNearbyAvailableDriversOnTheMap();
+            break;
+
+          // 'onKeyMoved' will be called whenever the driver's location moves.
+          case Geofire.onKeyMoved:
+            NearbyAvailableDrivers nearbyAvailableDriver = NearbyAvailableDrivers(); // Instantiating nearby available drivers as an object.
+            nearbyAvailableDriver.driverLocationLatitude = map['latitude']; // Picking up the nearby available driver's latitude.
+            nearbyAvailableDriver.driverLocationLongitude = map['longitude']; // Picking up the nearby available driver's longitude.
+            nearbyAvailableDriver.driverId = map['key']; // Picking up the nearby available driver's ID.
+            AssistantGeofire.updateNearbyAvailableDriverLocation(nearbyAvailableDriver);
+            displayNearbyAvailableDriversOnTheMap();
+            break;
+
+          // 'onGeoQueryReady' will display all of those nearby available drivers.
+          case Geofire.onGeoQueryReady:
+            nearbyAvailableDriverKeysLoaded = true;
+            displayNearbyAvailableDriversOnTheMap();
+            break;
+        }
+      }
+
+      setState(() {});
+    });
+  }
+
+  displayNearbyAvailableDriversOnTheMap() {
+    setState(() {
+      markersSet.clear();
+      Set<Marker> driversMarkerSet = Set<Marker>(); // NB: Ignore Flutter's suggestion.
+
+      for(NearbyAvailableDrivers eachDriver in AssistantGeofire.nearbyAvailableDriversList) {
+        LatLng eachNearbyAvailableDriverPosition = LatLng(eachDriver.driverLocationLatitude!, eachDriver.driverLocationLongitude!);
+        Marker marker = Marker(
+          markerId: MarkerId(eachDriver.driverId!),
+          position: eachNearbyAvailableDriverPosition,
+          icon: nearbyAvailableDriverIcon!,
+          rotation: 360,
+        );
+
+        driversMarkerSet.add(marker);
+      }
+
+      setState(() {
+        markersSet = driversMarkerSet;
+      });
+    });
+  }
+
+  createNearbyAvailableDriverMarker() {
+    if(nearbyAvailableDriverIcon == null) {
+      ImageConfiguration imageConfiguration = createLocalImageConfiguration(context, size: const Size(2, 2)); // Size for the available driver icon.
+      BitmapDescriptor.fromAssetImage(imageConfiguration, 'images/car.png').then((value) {
+        nearbyAvailableDriverIcon = value;
+      });
+    }
   }
 }

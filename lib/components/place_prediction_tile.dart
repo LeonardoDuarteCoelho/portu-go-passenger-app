@@ -46,7 +46,7 @@ class PlacePredictionTileDesign extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
-        getPlaceDirectionInfo(predictedPlaces!.place_id, context);
+        getPlaceDirectionInfo(predictedPlaces!.placeId, context);
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.white,
@@ -72,7 +72,7 @@ class PlacePredictionTileDesign extends StatelessWidget {
                 const SizedBox(height: AppSpaceValues.space2),
 
                 Text(
-                  predictedPlaces!.main_text!,
+                  predictedPlaces!.mainText!,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: AppFontSizes.ml,
@@ -84,7 +84,7 @@ class PlacePredictionTileDesign extends StatelessWidget {
                 const SizedBox(height: AppSpaceValues.space1),
 
                 Text(
-                  predictedPlaces!.secondary_text!,
+                  predictedPlaces!.secondaryText!,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: AppFontSizes.sm,

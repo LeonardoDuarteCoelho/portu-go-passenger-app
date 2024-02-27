@@ -10,8 +10,8 @@ class PassengerModel {
 
   PassengerModel.fromSnapshot(DataSnapshot snap) {
     email = (snap.value as dynamic)['email'];
-    id    = snap.key;
-    name  = (snap.value as dynamic)['name'];
+    id = snap.key;
+    name = (snap.value as dynamic)['name'];
     phone = (snap.value as dynamic)['phone'];
   }
 }
