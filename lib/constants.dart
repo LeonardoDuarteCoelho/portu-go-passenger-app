@@ -65,8 +65,8 @@ class AppStrings {
   static const String destination = 'Destino';
   static const String userNeedToSelectDestination = 'Para confirmar a viagem, selecione um destino.';
   static const String userNeedToConfirmSelectedDestination = 'Por favor, confirme o destino selecionado.';
-  static const String noAvailableDriversNearby = 'Desculpe, mas não há motoristas disponíveis no momento.';
-  static const String waitToRequestRideAgain = 'Aguarde para confirmar a viagem novamente.';
+  static const String noAvailableDriversNearby = 'Não há motoristas disponíveis no momento. Aguarde um pouco.';
+  // static const String waitToRequestRideAgain = 'Aguarde para confirmar a viagem novamente.'; // Discontinued string.
 
   // 'location_permission_warning.dart'
   static const String permissionDenied = 'Permissão negada';
@@ -86,6 +86,9 @@ class AppStrings {
   // 'place_prediction_tile.dart'
   /// This string is integral for the logic behind getting the user's destination (Check 'main_screen.dart'). Be mindful when editing it.
   static const String destinationSelected = 'Destino selecionado!';
+
+  // 'select_nearest_available_drivers_screen.dart'
+  static const String nearbyDrivers = 'Motoristas próximos';
 }
 
 class AppColors {
@@ -103,6 +106,7 @@ class AppColors {
 
   static const Color success = Colors.green;
   static const Color error = Colors.red;
+  static const Color warning = Colors.yellow;
 
   // Themed colors:
   static const Color gray0 = Color(0xFFF8F9FA);

@@ -48,7 +48,7 @@ class _SearchPlacesScreenState extends State<SearchPlacesScreen> {
           Container(
             height: 190,
             decoration: const BoxDecoration(
-              color: AppColors.gray3,
+              color: AppColors.indigo7,
               boxShadow: [
                 BoxShadow(
                   color: AppColors.gray7,
@@ -74,7 +74,7 @@ class _SearchPlacesScreenState extends State<SearchPlacesScreen> {
                         },
                         child: const Icon(
                           Icons.arrow_back,
-                          color: AppColors.gray9,
+                          color: AppColors.white,
                           size: AppSpaceValues.space4,
                         ),
                       ),
@@ -84,8 +84,8 @@ class _SearchPlacesScreenState extends State<SearchPlacesScreen> {
                           AppStrings.findLocation,
                           style: TextStyle(
                             fontSize: AppFontSizes.l,
-                            color: AppColors.gray9,
-                            fontWeight: AppFontWeights.semiBold
+                            color: AppColors.white,
+                            fontWeight: AppFontWeights.medium
                           ),
                         ),
                       )
@@ -98,7 +98,7 @@ class _SearchPlacesScreenState extends State<SearchPlacesScreen> {
                     children: [
                       const Icon(
                         Icons.search,
-                        color: AppColors.gray9,
+                        color: AppColors.white,
                         size: AppSpaceValues.space3,
                       ),
 

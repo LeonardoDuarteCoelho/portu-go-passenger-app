@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -20,6 +22,7 @@ import 'package:app_settings/app_settings.dart';
 import 'package:portu_go_passenger/infoHandler/app_info.dart';
 import 'package:portu_go_passenger/main.dart';
 import 'package:portu_go_passenger/mainScreens/search_places_screen.dart';
+import 'package:portu_go_passenger/mainScreens/select_nearest_available_drivers_screen.dart';
 import 'package:portu_go_passenger/models/direction_route_details.dart';
 import 'package:portu_go_passenger/models/nearby_available_drivers.dart';
 import 'package:provider/provider.dart';
@@ -55,8 +58,6 @@ class _MainScreenState extends State<MainScreen> {
   LocationPermission? _locationPermission;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   List<NearbyAvailableDrivers> nearbyAvailableDriversList = [];
-
-  // Geolocator variables:
   static const CameraPosition _dummyLocation = CameraPosition(
     target: LatLng(0, 0), // Placeholder location when app's still locating user.
     zoom: 17,
@@ -68,19 +69,16 @@ class _MainScreenState extends State<MainScreen> {
   var geolocator = Geolocator();
   final Completer<GoogleMapController> _controllerGoogleMap = Completer<GoogleMapController>();
   GoogleMapController? newGoogleMapController;
-
-  // Map route variables:
   dynamic responseFromSearchScreen;
   DirectionRouteDetails? directionRouteDetails;
   List<LatLng> polylineCoordinatesList = [];
   Set<Polyline> polylineSet = {};
   LatLngBounds? latLngBounds;
   Set<Marker> markersSet = {};
-
-  // Geofire variables:
   bool nearbyAvailableDriverKeysLoaded = false;
   double locateNearDriversRadius = 10;
   BitmapDescriptor? nearbyAvailableDriverIcon;
+  DatabaseReference? driversRef;
 
   @override
   void initState() {
@@ -98,6 +96,10 @@ class _MainScreenState extends State<MainScreen> {
 
   navigateToSplashScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (c) => const SplashScreen()));
+  }
+
+  navigateToSelectNearestAvailableDriversScreen() {
+    Navigator.push(context, MaterialPageRoute(builder: (c) => const SelectNearestAvailableDriversScreen()));
   }
 
   setGoogleMapThemeToBlack (bool changeToBlackTheme) {
@@ -368,8 +370,21 @@ class _MainScreenState extends State<MainScreen> {
     // If there's no drivers available for the passenger...
     if(nearbyAvailableDriversList.isEmpty) {
       Fluttertoast.showToast(msg: AppStrings.noAvailableDriversNearby);
-      Fluttertoast.showToast(msg: AppStrings.waitToRequestRideAgain);
       return;
+    }
+    // But if there's near drivers available, we'll get their info with this method:
+    await getNearestAvailableDriversInfo(nearbyAvailableDriversList);
+    navigateToSelectNearestAvailableDriversScreen();
+  }
+
+  // This method will provide us with each available nearby driver's ID and geographic coordinates:
+  getNearestAvailableDriversInfo(List nearestAvailableDriversList) async {
+    driversRef = FirebaseDatabase.instance.ref().child('drivers');
+    for(int i = 0; i < nearestAvailableDriversList.length; i++) {
+      await driversRef?.child(nearestAvailableDriversList[i].driverId.toString()).once().then((dataSnapshot) {
+        var driverKeyInfo = dataSnapshot.snapshot.value;
+        driversList.add(driverKeyInfo);
+      });
     }
   }
 
