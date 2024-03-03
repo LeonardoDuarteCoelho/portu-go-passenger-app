@@ -9,6 +9,10 @@ class AppStrings {
   static const String loading3 = 'Por favor, aguarde...';
   static const String accountCreated = 'Conta criada com sucesso!';
   static const String carInfoSaved = 'Informações do carro guardadas.';
+  /// This string is integral for 'assistant_methods.dart'. Be mindful when editing it.
+  static const String primeCarType = 'Prime';
+  /// This string is integral for 'assistant_methods.dart'. Be mindful when editing it.
+  static const String goCarType = 'GO';
 
   // Error strings
   /// This string is integral for the connections between APIs and the app (Check 'assistant_methods.dart'). Be mindful when editing it.
@@ -26,16 +30,6 @@ class AppStrings {
   static const String emailValidationToast = 'O email inserido não é válido.';
   static const String phoneValidationToast = 'Por favor, insira um número de telemóvel válido.';
   static const String passwordValidationToast = 'A palavra-passe deve ter pelo menos 5 dígitos.';
-
-  // 'car_info_screen.dart'
-  static const String greetingsUserMessage = 'Quase lá!';
-  static const String insertCarInfoMessage = 'Sua conta está quase pronta! Basta inserir as informações do seu carro.';
-  static const String carModelTextField = 'Modelo';
-  static const String carNumberTextField = 'Nº da placa';
-  static const String carColorTextField = 'Cor';
-  static const String carTypeDropdownHint = 'Escolha o tipo de veículo';
-  static const String carPrimeExplanation = 'Carros SUV ou minivans. Mínimo de 5 assentos disponíveis e espaço para malas.';
-  static const String carGoExplanation = 'Carros comuns. Mínimo de 3 assentos disponíveis (porta-malas não é obrigatório).';
   static const String alreadyCreatedAccountButton = 'Já possuo uma conta';
 
   // 'log_in_screen.dart'
@@ -89,6 +83,7 @@ class AppStrings {
 
   // 'select_nearest_available_drivers_screen.dart'
   static const String nearbyDrivers = 'Motoristas próximos';
+  static const String carModel = 'Modelo';
 }
 
 class AppColors {

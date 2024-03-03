@@ -73,6 +73,10 @@ class _MainScreenState extends State<MainScreen> {
   double locateNearDriversRadius = 10;
   BitmapDescriptor? nearbyAvailableDriverIcon;
   DatabaseReference? driversRef;
+  DatabaseReference? rideRequestRef;
+  Map? originLocationMap;
+  Map? destinationLocationMap;
+  Map? passengerInformationMap;
 
   @override
   void initState() {
@@ -92,8 +96,8 @@ class _MainScreenState extends State<MainScreen> {
     Navigator.push(context, MaterialPageRoute(builder: (c) => const SplashScreen()));
   }
 
-  navigateToSelectNearestAvailableDriversScreen() {
-    Navigator.push(context, MaterialPageRoute(builder: (c) => const SelectNearestAvailableDriversScreen()));
+  navigateToSelectNearestAvailableDriversScreen(DatabaseReference rideRequestRef) {
+    Navigator.push(context, MaterialPageRoute(builder: (c) => SelectNearestAvailableDriversScreen(rideRequestRef: rideRequestRef)));
   }
 
   setGoogleMapThemeToBlack (bool changeToBlackTheme) {
@@ -356,19 +360,43 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   saveRideRequestInfo() {
-    nearbyAvailableDriversList = AssistantGeofire.nearbyAvailableDriversList;
+    rideRequestRef = FirebaseDatabase.instance.ref().child('rideRequests').push(); // Setting ride request info reference into the database.
+    var originLocation = Provider.of<AppInfo>(context, listen: false).passengerPickUpLocation; // Getting the passenger's pick up location.
+    var destinationLocation = Provider.of<AppInfo>(context, listen: false).passengerDropOffLocation; // Getting the passenger's drop off location.
+    originLocationMap = {
+      'latitude': originLocation!.locationLatitude.toString(),
+      'longitude': originLocation.locationLongitude.toString(),
+    }; // Setting an object to store the passenger's origin location info.
+    destinationLocationMap = {
+      'latitude': destinationLocation!.locationLatitude.toString(),
+      'longitude': destinationLocation.locationLongitude.toString(),
+    }; // Setting an object to store the passenger's destination location info.
+    passengerInformationMap = {
+      'origin': originLocationMap,
+      'originAddress': originLocation.locationName,
+      'destination': destinationLocationMap,
+      'destinationAddress': destinationLocation.locationName,
+      'time': DateTime.now().toString(),
+      'passengerId': passengerModelCurrentInfo!.id,
+      'passengerName': passengerModelCurrentInfo!.name,
+      'passengerPhone': passengerModelCurrentInfo!.phone,
+      'driverId': 'waiting',
+    }; // Setting an object to store ALL passenger's ride request info.
+    rideRequestRef!.set(passengerInformationMap); // Finally, the 'passengerInformationMap' object will be sent into the database.
+    nearbyAvailableDriversList = AssistantGeofire.nearbyAvailableDriversList; // Getting nearby available drivers list.
     searchNearestAvailableDrivers();
   }
 
   searchNearestAvailableDrivers() async {
     // If there's no drivers available for the passenger...
     if(nearbyAvailableDriversList.isEmpty) {
+      rideRequestRef!.remove();
       Fluttertoast.showToast(msg: AppStrings.noAvailableDriversNearby);
       return;
     }
     // But if there's near drivers available, we'll get their info with this method:
     await getNearestAvailableDriversInfo(nearbyAvailableDriversList);
-    navigateToSelectNearestAvailableDriversScreen();
+    navigateToSelectNearestAvailableDriversScreen(rideRequestRef!);
   }
 
   // This method will provide us with each available nearby driver's ID and geographic coordinates:

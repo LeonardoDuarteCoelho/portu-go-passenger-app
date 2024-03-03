@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:portu_go_passenger/assistants/assistant_methods.dart';
@@ -10,7 +11,8 @@ import 'package:smooth_star_rating_nsafe/smooth_star_rating.dart';
 import '../constants.dart';
 
 class SelectNearestAvailableDriversScreen extends StatefulWidget {
-  const SelectNearestAvailableDriversScreen({super.key});
+  DatabaseReference? rideRequestRef;
+  SelectNearestAvailableDriversScreen({ super.key, this.rideRequestRef });
 
   @override
   State<SelectNearestAvailableDriversScreen> createState() => _SelectNearestAvailableDriversScreenState();
@@ -52,10 +54,10 @@ class _SelectNearestAvailableDriversScreenState extends State<SelectNearestAvail
   // Based on the car type showed on the database, the image displayed and the fare amount charged will vary.
   getCarTypeAndSetCarImageAndFareAmount(int index) {
     if(tripDirectionRouteDetails != null) {
-      if(driversList[index]['carInfo']['carType'] == 'GO') {
+      if(driversList[index]['carInfo']['carType'] == AppStrings.goCarType) {
         imageNameToBeInserted = goCarTypeImageName;
         fareAmount = (AssistantMethods.calculateFareAmountFromOriginToDestination(tripDirectionRouteDetails!)).toStringAsFixed(2);
-      } else if(driversList[index]['carInfo']['carType'] == 'Prime') {
+      } else if(driversList[index]['carInfo']['carType'] == AppStrings.primeCarType) {
         imageNameToBeInserted = primeCarTypeImageName;
         fareAmount = (AssistantMethods.calculateFareAmountFromOriginToDestination(tripDirectionRouteDetails!) * primeTypeCarFareAmountIncrease).toStringAsFixed(2);
       }
@@ -81,6 +83,7 @@ class _SelectNearestAvailableDriversScreenState extends State<SelectNearestAvail
           icon: const Icon(Icons.arrow_back, color: AppColors.white),
           iconSize: AppSpaceValues.space4,
           onPressed: () {
+            widget.rideRequestRef!.remove();
             driversList.clear();
             Navigator.pop(context);
             // Navigator.push(context, MaterialPageRoute(builder: (c) => const MainScreen()));
@@ -145,7 +148,7 @@ class _SelectNearestAvailableDriversScreenState extends State<SelectNearestAvail
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
-                                  'Modelo: ',
+                                  '${AppStrings.carModel} ',
                                   style: TextStyle(
                                       fontSize: AppFontSizes.sm,
                                       color: AppColors.gray9,

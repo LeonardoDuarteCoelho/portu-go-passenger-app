@@ -42,11 +42,8 @@ class AssistantMethods {
 
   static void getCurrentOnlinePassengerInfo() async {
     currentFirebaseUser = fAuth.currentUser;
-    DatabaseReference passengersRef = FirebaseDatabase
-    .instance
-    .ref()
-    .child("passengers")
-    .child(currentFirebaseUser!.uid);
+    DatabaseReference passengersRef = FirebaseDatabase.instance.ref().child("passengers").child(currentFirebaseUser!.uid);
+
     passengersRef.once().then((snap) {
       if(snap.snapshot.value != null) {
         passengerModelCurrentInfo = PassengerModel.fromSnapshot(snap.snapshot);
@@ -81,7 +78,7 @@ class AssistantMethods {
   static double calculateFareAmountFromOriginToDestination(DirectionRouteDetails directionRouteDetails) {
     double dollarsChargedPerMinute = 0.1; // The amount of dollars charged per minute.
     double dollarsChargedPerKilometer = 0.1; // The amount of dollars charged per kilometer.
-    double dollarToEuroRatio = 0.95; // US$ 1.00  =  € 0.95
+    double dollarToEuroRatio = 0.90; // US$ 1.00  =  € 0.90
 
     // Billing fare formula for the ride's duration:
     double timeTraveledFareAmountPerMinute = (directionRouteDetails.durationValue! / 60) * dollarsChargedPerMinute;
