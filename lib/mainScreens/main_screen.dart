@@ -37,13 +37,7 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-/// ABOUT THE 'const' PREFIX WARNINGS FROM FLUTTER: We need the Text
-/// widgets to not be constant since user destinations may change and,
-/// consequently, the strings displayed by the Text widgets will have
-/// to change.
-///
-/// Ignore the warnings from Flutter and DO NOT set the Text widgets as
-/// constant!
+/// WARNINGS FROM FLUTTER: Ignore the warnings from Flutter!
 class _MainScreenState extends State<MainScreen> {
   bool ifUserGrantedLocationPermission = true; // Whether the app shows a warning telling the user to enable access to location or not.
   bool showRouteConfirmationOptions = false; // Show the user options to confirm or deny the pick-up-to-drop-off route.
@@ -340,7 +334,7 @@ class _MainScreenState extends State<MainScreen> {
             backgroundColor: AppColors.error,
             onPressed: () {
               setState(() {
-                markersSet.clear();
+                markersSet.removeWhere((marker) => marker.markerId.value == 'originMarkerId' || marker.markerId.value == 'destinationMarkerId');
                 polylineSet.clear();
                 showRouteConfirmationOptions = false;
                 ifRouteIsConfirmed = false;
@@ -682,6 +676,9 @@ class _MainScreenState extends State<MainScreen> {
 
     showDialog(context: context, builder: (BuildContext context) => ProgressDialog(message: AppStrings.loading3));
     directionRouteDetails = await AssistantMethods.obtainOriginToDestinationDirectionDetails(originLatitudeAndLongitude, destinationLatitudeAndLongitude);
+    setState(() {
+      tripDirectionRouteDetails = directionRouteDetails;
+    });
     setNavigatorPop();
 
     PolylinePoints polylinePoints = PolylinePoints();

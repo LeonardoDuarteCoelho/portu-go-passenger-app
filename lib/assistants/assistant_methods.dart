@@ -71,4 +71,27 @@ class AssistantMethods {
 
     return directionRouteDetails;
   }
+
+  /// Method responsible for calculating and setting the appropriate fare considering the distance traveled
+  /// during the ride and its duration. Monetary values regarding the ride costs and the variables designed
+  /// to calculate the fare are all located inside this method.
+  ///
+  /// Note: If you wish to modify the change of price when the passenger chooses a Prime-type car, search for
+  /// variable 'primeTypeCarFareAmountIncrease'.
+  static double calculateFareAmountFromOriginToDestination(DirectionRouteDetails directionRouteDetails) {
+    double dollarsChargedPerMinute = 0.1; // The amount of dollars charged per minute.
+    double dollarsChargedPerKilometer = 0.1; // The amount of dollars charged per kilometer.
+    double dollarToEuroRatio = 0.95; // US$ 1.00  =  € 0.95
+
+    // Billing fare formula for the ride's duration:
+    double timeTraveledFareAmountPerMinute = (directionRouteDetails.durationValue! / 60) * dollarsChargedPerMinute;
+    // Billing fare formula for the ride's distance:
+    double timeTraveledFareAmountPerKilometer = (directionRouteDetails.distanceValue! / 1000) * dollarsChargedPerKilometer;
+    // Total billing fare (US$ CURRENCY):
+    double totalFareAmountInDollars = timeTraveledFareAmountPerMinute + timeTraveledFareAmountPerKilometer;
+    // Total billing fare (€ CURRENCY):
+    double totalFareAmountInEuros = totalFareAmountInDollars * dollarToEuroRatio;
+
+    return double.parse(totalFareAmountInEuros.toStringAsFixed(2));
+  }
 }
