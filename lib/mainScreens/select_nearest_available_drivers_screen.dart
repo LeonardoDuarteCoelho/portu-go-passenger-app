@@ -23,7 +23,6 @@ class _SelectNearestAvailableDriversScreenState extends State<SelectNearestAvail
   String primeCarTypeImageName = 'car-prime-type-four-doors.png';
   String imageNameToBeInserted = '';
   double carTypeIconWidth = 100;
-  int maxNumberOfRatingStarts = 5;
   String fareAmount = '';
   double primeTypeCarFareAmountIncrease = 1.15; // This value will be multiplied by the standard billing fee, making Prime-type cars more expensive.
 
@@ -95,160 +94,169 @@ class _SelectNearestAvailableDriversScreenState extends State<SelectNearestAvail
         itemBuilder: (BuildContext context, int index) {
           getCarTypeAndSetCarImageAndFareAmount(index);
 
-          return Card(
-            color: Colors.white,
-            elevation: 2,
-            shadowColor: AppColors.gray7,
-            margin: const EdgeInsets.only(
-              left: AppSpaceValues.space1,
-              top: AppSpaceValues.space2,
-              right: AppSpaceValues.space1,
-            ),
-            child: ListTile(
-              leading: Image.asset(
-                'images/$imageNameToBeInserted',
-                width: carTypeIconWidth,
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                selectedDriverId = driversList[index]['id'].toString();
+              });
+              driversList.clear();
+              Navigator.pop(context, AppStrings.chosenDriver);
+            },
+            child: Card(
+              color: Colors.white,
+              elevation: 2,
+              shadowColor: AppColors.gray7,
+              margin: const EdgeInsets.only(
+                left: AppSpaceValues.space1,
+                top: AppSpaceValues.space2,
+                right: AppSpaceValues.space1,
               ),
-              title: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    driversList[index]['name'],
-                    style: const TextStyle(
-                      fontSize: AppFontSizes.ml,
-                      color: AppColors.gray9,
-                      fontWeight: AppFontWeights.semiBold,
-                      height: AppLineHeights.ml
+              child: ListTile(
+                leading: Image.asset(
+                  'images/$imageNameToBeInserted',
+                  width: carTypeIconWidth,
+                ),
+                title: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      driversList[index]['name'],
+                      style: const TextStyle(
+                        fontSize: AppFontSizes.ml,
+                        color: AppColors.gray9,
+                        fontWeight: AppFontWeights.semiBold,
+                        height: AppLineHeights.ml
+                      ),
                     ),
-                  ),
-
-                  SmoothStarRating(
-                    rating: 3.5,
-                    color: AppColors.indigo9,
-                    borderColor: AppColors.indigo9,
-                    allowHalfRating: false,
-                    starCount: maxNumberOfRatingStarts,
-                    size: AppSpaceValues.space3,
-                  ),
-
-                  const SizedBox(height: AppSpaceValues.space1),
-
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: 62,
-                        width: 130,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  '${AppStrings.carModel} ',
-                                  style: TextStyle(
-                                      fontSize: AppFontSizes.sm,
-                                      color: AppColors.gray9,
-                                      fontWeight: AppFontWeights.semiBold,
-                                      height: AppLineHeights.ml
+            
+                    SmoothStarRating(
+                      rating: (driversList[index]['ratings'] == null) ? 0 : driversList[index]['ratings'],
+                      color: AppColors.indigo9,
+                      borderColor: AppColors.indigo9,
+                      allowHalfRating: false,
+                      starCount: maxNumberOfRatingStarts,
+                      size: AppSpaceValues.space3,
+                    ),
+            
+                    const SizedBox(height: AppSpaceValues.space1),
+            
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 62,
+                          width: 130,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    '${AppStrings.carModel}:',
+                                    style: TextStyle(
+                                        fontSize: AppFontSizes.sm,
+                                        color: AppColors.gray9,
+                                        fontWeight: AppFontWeights.semiBold,
+                                        height: AppLineHeights.ml
+                                    ),
                                   ),
-                                ),
-
-                                Text(
-                                  driversList[index]['carInfo']['carModel'],
-                                  softWrap: true,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 2,
-                                  style: const TextStyle(
+            
+                                  Text(
+                                    driversList[index]['carInfo']['carModel'],
+                                    softWrap: true,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
+                                    style: const TextStyle(
+                                        fontSize: AppFontSizes.sm,
+                                        color: AppColors.gray9,
+                                        fontWeight: AppFontWeights.regular,
+                                        height: AppLineHeights.ml
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+            
+                        const SizedBox(width: AppSpaceValues.space1),
+            
+                        SizedBox(
+                          height: 62,
+                          width: 80,
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.location_on,
+                                    size: AppSpaceValues.space3,
+                                  ),
+            
+                                  const SizedBox(width: AppSpaceValues.space1),
+            
+                                  Text(
+                                    tripDirectionRouteDetails != null ? tripDirectionRouteDetails!.distanceText! : '',
+                                    style: const TextStyle(
                                       fontSize: AppFontSizes.sm,
                                       color: AppColors.gray9,
                                       fontWeight: AppFontWeights.regular,
-                                      height: AppLineHeights.ml
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+            
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.timelapse,
+                                    size: AppSpaceValues.space3,
+                                  ),
+            
+                                  const SizedBox(width: AppSpaceValues.space1),
+            
+                                  Text(
+                                    tripDurationTreatedText(),
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: AppFontSizes.sm,
+                                      color: AppColors.gray9,
+                                      fontWeight: AppFontWeights.regular,
+                                      height: AppLineHeights.m
+                                    ),
+                                  ),
+                                ],
+                              ),
+            
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.euro,
+                                    size: AppSpaceValues.space3,
+                                  ),
+            
+                                  const SizedBox(width: AppSpaceValues.space1),
+            
+                                  Text(
+                                    fareAmount,
+                                    style: const TextStyle(
+                                      fontSize: AppFontSizes.sm,
+                                      color: AppColors.gray9,
+                                      fontWeight: AppFontWeights.regular,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-
-                      const SizedBox(width: AppSpaceValues.space1),
-
-                      SizedBox(
-                        height: 62,
-                        width: 80,
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.location_on,
-                                  size: AppSpaceValues.space3,
-                                ),
-
-                                const SizedBox(width: AppSpaceValues.space1),
-
-                                Text(
-                                  tripDirectionRouteDetails != null ? tripDirectionRouteDetails!.distanceText! : '',
-                                  style: const TextStyle(
-                                    fontSize: AppFontSizes.sm,
-                                    color: AppColors.gray9,
-                                    fontWeight: AppFontWeights.regular,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.timelapse,
-                                  size: AppSpaceValues.space3,
-                                ),
-
-                                const SizedBox(width: AppSpaceValues.space1),
-
-                                Text(
-                                  tripDurationTreatedText(),
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontSize: AppFontSizes.sm,
-                                    color: AppColors.gray9,
-                                    fontWeight: AppFontWeights.regular,
-                                    height: AppLineHeights.m
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.euro,
-                                  size: AppSpaceValues.space3,
-                                ),
-
-                                const SizedBox(width: AppSpaceValues.space1),
-
-                                Text(
-                                  fareAmount,
-                                  style: const TextStyle(
-                                    fontSize: AppFontSizes.sm,
-                                    color: AppColors.gray9,
-                                    fontWeight: AppFontWeights.regular,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           );

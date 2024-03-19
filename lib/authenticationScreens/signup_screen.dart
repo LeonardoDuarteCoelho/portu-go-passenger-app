@@ -24,11 +24,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController emailTextEditingController = TextEditingController();
   TextEditingController phoneTextEditingController = TextEditingController();
   TextEditingController passwordTextEditingController = TextEditingController();
-
-  // Firebase variables:
   late final User? firebaseUser;
   late Map passengerMap;
   late DatabaseReference passengerRef;
+  double btnWidth = 300;
 
   @override
   void initState() {
@@ -213,18 +212,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                       // Sign up button:
                       CustomButton(
-                          text: AppStrings.createAccountButton,
-                          onPressed: () { validateForm(); }
+                        width: btnWidth,
+                        text: AppStrings.createAccountButton,
+                        onPressed: () { validateForm(); }
                       ),
 
                       const SizedBox(height: AppSpaceValues.space3),
 
                       // Log in button:
                       CustomButton(
-                          text: AppStrings.alreadyCreatedAccountButton,
-                          backgroundColor: AppColors.gray2,
-                          textColor: AppColors.gray9,
-                          onPressed: () { navigateToLogInScreen(); }
+                        width: btnWidth,
+                        text: AppStrings.alreadyCreatedAccountButton,
+                        backgroundColor: AppColors.gray2,
+                        textColor: AppColors.gray9,
+                        onPressed: () { navigateToLogInScreen(); }
                       ),
 
                       const SizedBox(height: AppSpaceValues.space3),

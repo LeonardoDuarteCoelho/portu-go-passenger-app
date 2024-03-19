@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:geolocator/geolocator.dart';
@@ -11,7 +13,9 @@ import 'package:portu_go_passenger/models/directions.dart';
 import 'package:portu_go_passenger/models/passenger_model.dart';
 import 'package:portu_go_passenger/assistants/assistant_request.dart';
 import 'package:portu_go_passenger/infoHandler/app_info.dart';
+import 'package:portu_go_passenger/models/trips_history_model.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 import '../constants.dart';
 
@@ -78,7 +82,7 @@ class AssistantMethods {
   static double calculateFareAmountFromOriginToDestination(DirectionRouteDetails directionRouteDetails) {
     double dollarsChargedPerMinute = 0.1; // The amount of dollars charged per minute.
     double dollarsChargedPerKilometer = 0.1; // The amount of dollars charged per kilometer.
-    double dollarToEuroRatio = 0.90; // US$ 1.00  =  € 0.90
+    double dollarToEuroRatio = 1; // US$ 1.00  =  € 1.00
 
     // Billing fare formula for the ride's duration:
     double timeTraveledFareAmountPerMinute = (directionRouteDetails.durationValue! / 60) * dollarsChargedPerMinute;
@@ -90,5 +94,88 @@ class AssistantMethods {
     double totalFareAmountInEuros = totalFareAmountInDollars * dollarToEuroRatio;
 
     return double.parse(totalFareAmountInEuros.toStringAsFixed(2));
+  }
+
+  static sendNotificationToDriver(context, String driverRegistrationToken, String rideRequestId) async {
+    var destinationAddress = Provider.of<AppInfo>(context, listen: false).passengerDropOffLocation;
+    Map<String, String> notificationHeader =
+    {
+      'Content-Type': 'application/json',
+      'Authorization': cloudMessagingOAuth2,
+    };
+    Map notificationBody =
+    {
+      "message": {
+        "token": driverRegistrationToken,
+        "notification": {
+          "title": "Pedido recebido! Destino final em ${destinationAddress.toString()}",
+          "body": "Novo pedido de corrida! Passageiro próximo a espera de motorista."
+        },
+        "android": {
+          "priority": "high",
+          "notification": {
+            "click_action": "FLUTTER_NOTIFICATION_CLICK"
+          }
+        },
+        "apns": {
+          "headers": {
+            "apns-priority": "10"
+          },
+          "payload": {
+            "aps": {
+              "alert": {
+                "title": "Pedido recebido! Destino final em ${destinationAddress.toString()}",
+                "body": "Novo pedido de corrida! Passageiro próximo a espera de motorista."
+              },
+              "badge": 1,
+              "sound": "default"
+            }
+          }
+        },
+        "data": {
+          "id": "1",
+          "status": "done",
+          "rideRequestId": rideRequestId
+        }
+      }
+    };
+    var notificationResponse = http.post(
+      Uri.parse(cloudMessagingUrl),
+      headers: notificationHeader,
+      body: jsonEncode(notificationBody),
+    );
+  }
+
+  /// This method will retrieve all the trip keys for passenger:
+  static void readTripIdKeys(context) {
+    // Collecting each key:
+    FirebaseDatabase.instance.ref().child('rideRequests').orderByChild('passengerName').equalTo(passengerModelCurrentInfo!.name).once().then((snap) {
+      if(snap.snapshot.value != null) {
+        Map tripIdKeys = snap.snapshot.value as Map;
+        int tripsCounter = tripIdKeys.length; // How many trips the passenger had.
+        // Counting total number of trips and share it with provider:
+        Provider.of<AppInfo>(context, listen: false).updateTripsCounter(tripsCounter);
+        // Share trip keys with provider:
+        List<String> tripKeysList = [];
+        tripIdKeys.forEach((key, value) {
+          tripKeysList.add(key);
+        });
+        Provider.of<AppInfo>(context, listen: false).updateTripsKeys(tripKeysList);
+        readTripsHistoryInfo(context);
+      }
+    });
+  }
+
+  static void readTripsHistoryInfo(context) {
+    var allTripsKeys = Provider.of<AppInfo>(context, listen: false).historyTripsKeysList;
+
+    for(String eachKey in allTripsKeys) {
+      FirebaseDatabase.instance.ref().child('rideRequests').child(eachKey).once().then((snap) {
+        var eachTripHistory = TripsHistoryModel.fromSnapshot(snap.snapshot);
+        if((snap.snapshot.value as Map)['status'] == 'finished') {
+          Provider.of<AppInfo>(context, listen: false).updateTripsHistoryInfo(eachTripHistory);
+        }
+      });
+    }
   }
 }

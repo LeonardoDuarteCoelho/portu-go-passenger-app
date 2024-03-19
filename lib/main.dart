@@ -24,7 +24,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Checking the host's platform (necessary for Firebase to work):
-  if (Platform.isAndroid) {
+  if(Platform.isAndroid) {
     // Checking if the app is successfully connected to Firebase:
     await Firebase.initializeApp(
       options: const FirebaseOptions(

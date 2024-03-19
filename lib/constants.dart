@@ -2,22 +2,30 @@ import 'package:flutter/material.dart';
 
 class AppStrings {
   // General strings
+  static const String empty = '';
   static const String ptCountryCode = '+351';
+  static const String euroSymbol = '€';
   static const String createAccountButton = 'Criar conta';
   static const String loading = 'A processar. Aguarde...';
   static const String loading2 = 'Inicializando app...';
   static const String loading3 = 'Por favor, aguarde...';
   static const String accountCreated = 'Conta criada com sucesso!';
   static const String carInfoSaved = 'Informações do carro guardadas.';
-  /// This string is integral for 'assistant_methods.dart'. Be mindful when editing it.
+  /// This string is integral for 'select_nearest_available_drivers_screen.dart'. Be mindful when editing it.
   static const String primeCarType = 'Prime';
-  /// This string is integral for 'assistant_methods.dart'. Be mindful when editing it.
+  /// This string is integral for 'select_nearest_available_drivers_screen.dart'. Be mindful when editing it.
   static const String goCarType = 'GO';
+  /// This string is integral for 'select_nearest_available_drivers_screen.dart'. Be mindful when editing it.
+  static const String chosenDriver = 'Chosen driver';
+  static const String profile = 'Perfil';
 
   // Error strings
   /// This string is integral for the connections between APIs and the app (Check 'assistant_methods.dart'). Be mindful when editing it.
   static const String connectToApiError = 'Erro na conexão entre a app e a API.';
   static const String signUpError = 'Erro ao criar conta. Cheque sua conexão e tente novamente.';
+  static const String driverDoesNotExistError = 'Erro ao selecionar motorista. Tente novamente.';
+  static const String driverAuthTokenError = 'Erro com o token de autentificação. Por favor, selecione outro motorista.';
+  static const String launchPortuGoWebsiteError = 'Erro ao abrir o website. Tente novamente numa outra hora.';
 
   // 'signup_screen.dart'
   static const String welcomeMessage = 'Bem-vindo ao PortuGO!';
@@ -46,9 +54,13 @@ class AppStrings {
 
   // 'navigation_drawer.dart'
   static const String history = 'Histórico';
-  static const String profile = 'Perfil';
-  static const String news = 'Novidades';
+  static const String aboutUs = 'Sobre nós';
   static const String signOut = 'Terminar sessão';
+  static const String darkMode = 'Modo escuro';
+  static const String lightMode = 'Modo claro';
+  static const String darkModeNowOn = 'Modo escuro agora em vigor.';
+  static const String lightModeNowOn = 'Modo claro agora em vigor.';
+  static const String launchingWebsite = 'Abrindo o website, aguarde...';
 
   // 'main_screen.dart'
   static const String yourLocation = 'Sua localização';
@@ -60,6 +72,14 @@ class AppStrings {
   static const String userNeedToSelectDestination = 'Para confirmar a viagem, selecione um destino.';
   static const String userNeedToConfirmSelectedDestination = 'Por favor, confirme o destino selecionado.';
   static const String noAvailableDriversNearby = 'Não há motoristas disponíveis no momento. Aguarde um pouco.';
+  static const String driverRefusedRideRequest = 'Seu pedido foi recusado. Por favor, chame outro motorista.';
+  static const String waitingDriverResponse = 'Aguardando resposta do motorista...';
+  static const String cancelRequest = 'Cancelar pedido';
+  static const String driverIsComing = 'Seu motorista está a chegar.';
+  static const String driverHasArrived = 'Seu motorista chegou.';
+  static const String driverInboundDestination = 'Em direção ao seu destino.';
+  static const String messageDriver = 'Mandar mensagem';
+  static const String notificationSentToDriver = 'Solicitação enviada com sucesso para o motorista!';
   // static const String waitToRequestRideAgain = 'Aguarde para confirmar a viagem novamente.'; // Discontinued string.
 
   // 'location_permission_warning.dart'
@@ -84,6 +104,24 @@ class AppStrings {
   // 'select_nearest_available_drivers_screen.dart'
   static const String nearbyDrivers = 'Motoristas próximos';
   static const String carModel = 'Modelo';
+
+  // 'fare_amount_collection_dialog.dart'
+  static const String tripPriceToPay = 'Viagem finalizada!\nPreço a pagar...';
+  static const String confirmPayment = 'Efetuar pagamento';
+  static const String paymentWasSuccessful = 'Pagamento efetuado com sucesso.';
+
+  // 'rate_driver_screen.dart'
+  static const String rateDriver = 'Avalie como foi sua viagem.';
+  static const String driverRatingOneStar = 'Péssimo';
+  static const String driverRatingTwoStar = 'Ruim';
+  static const String driverRatingThreeStar = 'Bom';
+  static const String driverRatingFourStar = 'Ótimo';
+  static const String driverRatingFiveStar = 'Excelente';
+  static const String confirmDriverRating = 'Enviar avaliação';
+  static const String thankingPassengerForSendRating = 'Obrigado! Sua avaliação foi recebida com sucesso.';
+
+  // 'trips_history_screen.dart'
+  static const String tripsHistory = 'Histórico de viagens';
 }
 
 class AppColors {
@@ -99,9 +137,10 @@ class AppColors {
   static const Color whiteTransparent50 = Color(0x80FFFFFF);
   static const Color transparent = Color(0x00000000);
 
-  static const Color success = Colors.green;
-  static const Color error = Colors.red;
-  static const Color warning = Colors.yellow;
+  static const Color success3 = Color(0xFF81C784);
+  static const Color success5 = Color(0xFF4CAF50);
+  static const Color error = Color(0xFFF44336);
+  static const Color warning = Color(0xFFFBC02D);
 
   // Themed colors:
   static const Color gray0 = Color(0xFFF8F9FA);
@@ -135,6 +174,7 @@ class AppFontFamilies {
 }
 
 class AppFontSizes {
+  static const double xxxxl = 72;
   static const double xxxl = 56;
   static const double xxl = 40;
   static const double xl = 32;

@@ -22,10 +22,9 @@ class LogInScreen extends StatefulWidget {
 class _LogInScreenState extends State<LogInScreen> {
   TextEditingController emailTextEditingController = TextEditingController();
   TextEditingController passwordTextEditingController = TextEditingController();
-
-  // Firebase variables:
   late final User? firebaseUser;
   late DatabaseReference passengersRef;
+  double btnWidth = 300;
 
   navigateToSplashScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (c) => const SplashScreen()));
@@ -156,17 +155,19 @@ class _LogInScreenState extends State<LogInScreen> {
                   const SizedBox(height: AppSpaceValues.space5),
 
                   CustomButton(
-                      text: AppStrings.enterAccountButton,
-                      onPressed: () { validateForm(); }
+                    width: btnWidth,
+                    text: AppStrings.enterAccountButton,
+                    onPressed: () { validateForm(); }
                   ),
 
                   const SizedBox(height: AppSpaceValues.space3),
 
                   CustomButton(
-                      text: AppStrings.dontHaveAccountButton,
-                      backgroundColor: AppColors.gray2,
-                      textColor: AppColors.gray9,
-                      onPressed: () { navigateToSignUpScreen(); }
+                    width: btnWidth,
+                    text: AppStrings.dontHaveAccountButton,
+                    backgroundColor: AppColors.gray2,
+                    textColor: AppColors.gray9,
+                    onPressed: () { navigateToSignUpScreen(); }
                   ),
 
                   const SizedBox(height: AppSpaceValues.space3),
