@@ -31,8 +31,8 @@ class _TripsHistoryScreenState extends State<TripsHistoryScreen> {
           icon: const Icon(Icons.arrow_back, color: AppColors.white),
           iconSize: AppSpaceValues.space4,
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (c) => const MainScreen()));
             Provider.of<AppInfo>(context, listen: false).tripHistoryInfoList.clear();
+            Navigator.pop(context);
           },
         ),
       ),

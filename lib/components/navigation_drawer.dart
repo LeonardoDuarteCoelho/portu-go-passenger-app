@@ -4,6 +4,7 @@ import 'package:portu_go_passenger/components/list_tile.dart';
 import 'package:portu_go_passenger/mainScreens/profile_screen.dart';
 import 'package:portu_go_passenger/mainScreens/trips_history_screen.dart';
 import 'package:portu_go_passenger/splashScreen/splash_screen.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../authenticationScreens/login_screen.dart';
@@ -171,11 +172,11 @@ class _CustomNavigationDrawerState extends State<CustomNavigationDrawer> {
 
           CustomListTile(
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (c) => const SplashScreen()));
               setState(() {
                 ifDarkThemeIsActive ? ifDarkThemeIsActive = false : ifDarkThemeIsActive = true;
               });
               ifDarkThemeIsActive ? Fluttertoast.showToast(msg: AppStrings.darkModeNowOn) : Fluttertoast.showToast(msg: AppStrings.lightModeNowOn);
+              Restart.restartApp();
             },
             text: ifDarkThemeIsActive ? AppStrings.lightMode : AppStrings.darkMode,
             textColor: bodyText,

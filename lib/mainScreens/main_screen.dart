@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_geofire/flutter_geofire.dart';
@@ -18,17 +17,13 @@ import 'package:portu_go_passenger/components/navigation_drawer.dart';
 import 'package:portu_go_passenger/components/progress_dialog.dart';
 import 'package:portu_go_passenger/constants.dart';
 import 'package:portu_go_passenger/global/global.dart';
-import 'package:app_settings/app_settings.dart';
 import 'package:portu_go_passenger/infoHandler/app_info.dart';
-import 'package:portu_go_passenger/main.dart';
 import 'package:portu_go_passenger/mainScreens/rate_driver_screen.dart';
 import 'package:portu_go_passenger/mainScreens/search_places_screen.dart';
 import 'package:portu_go_passenger/mainScreens/select_nearest_available_drivers_screen.dart';
 import 'package:portu_go_passenger/models/direction_route_details.dart';
 import 'package:portu_go_passenger/models/nearby_available_drivers.dart';
 import 'package:provider/provider.dart';
-import 'package:restart_app/restart_app.dart';
-
 import '../assistants/assistant_google_map_theme.dart';
 import '../components/fare_amount_collection_dialog.dart';
 import '../models/directions.dart';
@@ -377,12 +372,14 @@ class _MainScreenState extends State<MainScreen> {
   // This method will provide us with each available nearby driver's ID and geographic coordinates:
   getNearestAvailableDriversInfo(List nearestAvailableDriversList) async {
     driversRef = FirebaseDatabase.instance.ref().child('drivers');
+
     for(int i = 0; i < nearestAvailableDriversList.length; i++) {
       await driversRef?.child(nearestAvailableDriversList[i].driverId.toString()).once().then((dataSnapshot) {
         var driverKeyInfo = dataSnapshot.snapshot.value;
         driversList.add(driverKeyInfo);
       });
     }
+    print(driversList);
   }
 
   showWaitingResponseFromDriverUI() {
@@ -1095,8 +1092,6 @@ class _MainScreenState extends State<MainScreen> {
             break;
         }
       }
-
-      setState(() {});
     });
   }
 

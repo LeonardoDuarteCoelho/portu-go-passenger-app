@@ -18,6 +18,7 @@ import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
 import '../constants.dart';
+import 'assistant_oauth2_token.dart';
 
 class AssistantMethods {
   static Future<String> searchAddressForGeographicCoordinates(Position position, context) async {
@@ -97,11 +98,15 @@ class AssistantMethods {
   }
 
   static sendNotificationToDriver(context, String driverRegistrationToken, String rideRequestId) async {
+    // To push the notification via Firebase Cloud Messaging, we need to authenticate using an oAuth 2.0 token.
+    // So for that reason, we're instantiating this class as an object, so we can get this token:
+    OAuth2TokenAccess oAuth2TokenAccess = OAuth2TokenAccess();
+    String oAuth2Token = await oAuth2TokenAccess.getAccessToken();
     var destinationAddress = Provider.of<AppInfo>(context, listen: false).passengerDropOffLocation;
     Map<String, String> notificationHeader =
     {
       'Content-Type': 'application/json',
-      'Authorization': cloudMessagingOAuth2,
+      'Authorization': 'Bearer $oAuth2Token',
     };
     Map notificationBody =
     {

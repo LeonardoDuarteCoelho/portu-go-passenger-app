@@ -29,7 +29,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           icon: const Icon(Icons.arrow_back, color: AppColors.white),
           iconSize: AppSpaceValues.space4,
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (c) => const MainScreen()));
+            Navigator.pop(context);
           },
         ),
       ),
