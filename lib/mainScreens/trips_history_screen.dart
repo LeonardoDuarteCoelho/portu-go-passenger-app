@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:portu_go_passenger/components/trip_history_design_ui.dart';
+import 'package:portu_go_passenger/global/global.dart';
 import 'package:provider/provider.dart';
 
 import '../constants.dart';
@@ -31,7 +32,6 @@ class _TripsHistoryScreenState extends State<TripsHistoryScreen> {
           icon: const Icon(Icons.arrow_back, color: AppColors.white),
           iconSize: AppSpaceValues.space4,
           onPressed: () {
-            Provider.of<AppInfo>(context, listen: false).tripHistoryInfoList.clear();
             Navigator.pop(context);
           },
         ),
@@ -50,7 +50,7 @@ class _TripsHistoryScreenState extends State<TripsHistoryScreen> {
             ),
           );
         },
-        itemCount: Provider.of<AppInfo>(context, listen: false).tripHistoryInfoList.length,
+        itemCount: numberOfTripsToBeDisplayedInHistory,
         physics: const ClampingScrollPhysics(),
         shrinkWrap: true,
       ),

@@ -1,15 +1,19 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:portu_go_passenger/components/list_tile.dart';
 import 'package:portu_go_passenger/mainScreens/profile_screen.dart';
 import 'package:portu_go_passenger/mainScreens/trips_history_screen.dart';
 import 'package:portu_go_passenger/splashScreen/splash_screen.dart';
+import 'package:provider/provider.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../assistants/assistant_methods.dart';
 import '../authenticationScreens/login_screen.dart';
 import '../constants.dart';
 import '../global/global.dart';
+import '../infoHandler/app_info.dart';
 
 class CustomNavigationDrawer extends StatefulWidget {
   String? name;
@@ -176,7 +180,7 @@ class _CustomNavigationDrawerState extends State<CustomNavigationDrawer> {
                 ifDarkThemeIsActive ? ifDarkThemeIsActive = false : ifDarkThemeIsActive = true;
               });
               ifDarkThemeIsActive ? Fluttertoast.showToast(msg: AppStrings.darkModeNowOn) : Fluttertoast.showToast(msg: AppStrings.lightModeNowOn);
-              Restart.restartApp();
+              Navigator.push(context, MaterialPageRoute(builder: (c) => const SplashScreen()));
             },
             text: ifDarkThemeIsActive ? AppStrings.lightMode : AppStrings.darkMode,
             textColor: bodyText,

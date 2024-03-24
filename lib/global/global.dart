@@ -21,5 +21,7 @@ int maxNumberOfRatingStarts = 5;
 double passengerRatingForDriver = 0;
 String driverRatingDescription = '';
 bool ifDarkThemeIsActive = false;
+int numberOfNearbyAvailableDrivers = 0;
+int numberOfTripsToBeDisplayedInHistory = 0;
 // TODO: Replace this placeholder URL, which is the one for the Figma project, with the real URL for the website:
 const portuGoWebsiteUrl = 'https://www.figma.com/file/RoybjZ7YVGofmuPIOL3yZi/PortuGO-Layouts?type=design&node-id=0-1&mode=design&t=gbdp1JyJlpgoAWWy-0';

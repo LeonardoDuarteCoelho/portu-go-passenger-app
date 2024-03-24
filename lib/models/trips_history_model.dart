@@ -12,6 +12,7 @@ class TripsHistoryModel
   String? carColor;
   String? carType;
   String? driverName;
+  String? passengerId;
 
   TripsHistoryModel({
     this.time,
@@ -23,6 +24,7 @@ class TripsHistoryModel
     this.carColor,
     this.carType,
     this.driverName,
+    this.passengerId,
   });
 
   TripsHistoryModel.fromSnapshot(DataSnapshot dataSnapshot)
@@ -37,5 +39,6 @@ class TripsHistoryModel
     carColor = (dataSnapshot.value as Map)['driverCarInfo']['carColor'];
     carType = (dataSnapshot.value as Map)['driverCarInfo']['carType'];
     driverName = (dataSnapshot.value as Map)['driverName'];
+    passengerId = (dataSnapshot.value as Map)['passengerId'];
   }
 }

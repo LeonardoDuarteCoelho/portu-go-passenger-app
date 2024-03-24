@@ -100,11 +100,14 @@ class _MainScreenState extends State<MainScreen> {
   IconData? driverIcon = Icons.person;
   Color? driverIconColor = AppColors.indigo7;
   double tripPrice = 0;
+  DatabaseReference? activeDriversRef;
 
   @override
   void initState() {
     super.initState();
     checkLocationPermissionStatus();
+    searchNearestAvailableDrivers();
+    AssistantMethods.readTripIdKeys(context);
   }
 
   setNavigatorPop() {
@@ -159,7 +162,6 @@ class _MainScreenState extends State<MainScreen> {
     passengerEmail = passengerModelCurrentInfo!.email!;
     passengerPhone = passengerModelCurrentInfo!.phone!;
     initializeGeofireListener();
-    AssistantMethods.readTripIdKeys(context);
   }
 
   Widget setShowRouteConfirmationOptions(bool showOptions, bool routeIsConfirmed) {
@@ -272,6 +274,7 @@ class _MainScreenState extends State<MainScreen> {
           case 'accepted':
             updateDurationFromDriverToPickUpLocation(driverCurrentPositionDuringTrip);
             setState(() {
+              markersSet.removeWhere((marker) => marker.markerId.value != 'originMarkerId' || marker.markerId.value != 'destinationMarkerId' || marker.markerId.value != selectedDriverId);
               driverIcon = Icons.person_pin_circle_outlined;
               driverIconColor = AppColors.indigo7;
             });
@@ -325,32 +328,32 @@ class _MainScreenState extends State<MainScreen> {
       Fluttertoast.showToast(msg: AppStrings.noAvailableDriversNearby);
       return;
     }
-    // But if there's near drivers available, we'll get their info with this method:
-    await getNearestAvailableDriversInfo(nearbyAvailableDriversList);
-    var response = await Navigator.push(context, MaterialPageRoute(builder: (c) => SelectNearestAvailableDriversScreen(rideRequestRef: rideRequestRef)));
-    if(response == AppStrings.chosenDriver) {
-      FirebaseDatabase.instance.ref().child('drivers').child(selectedDriverId!).once().then((snap) {
-        if(snap.snapshot.value != null) {
-          // Push notification to the selected driver:
-          pushNotificationToSelectedDriver(selectedDriverId!);
-          // Display an UI for waiting the driver's response:
-          showWaitingResponseFromDriverUI();
-          // Waiting response from driver by using a listener for event snapshot...
-          FirebaseDatabase.instance.ref().child('drivers').child(selectedDriverId!).child('newRideStatus').onValue.listen((eventSnapshot) {
-            // 1. If driver CANCELS ride request:
-            if(eventSnapshot.snapshot.value == 'available') {
-              Fluttertoast.showToast(msg: AppStrings.driverRefusedRideRequest);
-            }
-            // 2. If driver ACCEPTS ride request:
-            if(eventSnapshot.snapshot.value == 'accepted' || eventSnapshot.snapshot.value == 'busy') {
-              showTripUI();
-            }
-          });
-        } else {
-          Fluttertoast.showToast(msg: AppStrings.driverDoesNotExistError);
-        }
-      });
-    }
+      // But if there's near drivers available, we'll get their info with this method:
+      await getNearestAvailableDriversInfo(nearbyAvailableDriversList);
+      var response = await Navigator.push(context, MaterialPageRoute(builder: (c) => SelectNearestAvailableDriversScreen(rideRequestRef: rideRequestRef)));
+      if(response == AppStrings.chosenDriver) {
+        FirebaseDatabase.instance.ref().child('drivers').child(selectedDriverId!).once().then((snap) {
+          if(snap.snapshot.value != null) {
+            // Push notification to the selected driver:
+            pushNotificationToSelectedDriver(selectedDriverId!);
+            // Display an UI for waiting the driver's response:
+            showWaitingResponseFromDriverUI();
+            // Waiting response from driver by using a listener for event snapshot...
+            FirebaseDatabase.instance.ref().child('drivers').child(selectedDriverId!).child('newRideStatus').onValue.listen((eventSnapshot) {
+              // 1. If driver CANCELS ride request:
+              if(eventSnapshot.snapshot.value == 'available') {
+                Fluttertoast.showToast(msg: AppStrings.driverRefusedRideRequest);
+              }
+              // 2. If driver ACCEPTS ride request:
+              if(eventSnapshot.snapshot.value == 'accepted' || eventSnapshot.snapshot.value == 'busy') {
+                showTripUI();
+              }
+            });
+          } else {
+            Fluttertoast.showToast(msg: AppStrings.driverDoesNotExistError);
+          }
+        });
+      }
   }
 
   // This method will send the ride request notification to the driver:
@@ -379,7 +382,6 @@ class _MainScreenState extends State<MainScreen> {
         driversList.add(driverKeyInfo);
       });
     }
-    print(driversList);
   }
 
   showWaitingResponseFromDriverUI() {
@@ -445,6 +447,26 @@ class _MainScreenState extends State<MainScreen> {
       });
       requestPositionInfo = true;
     }
+  }
+
+  /// Method that will provide the number of child-objects inside 'activeDrivers' object in the database.
+  /// This prevents the ListView inside 'select_nearest_available_drivers_screen.dart' to render duplicate drivers.
+  void getNumberOfNearbyAvailableDrivers() {
+    activeDriversRef = FirebaseDatabase.instance.ref().child('activeDrivers');
+
+    activeDriversRef!.onValue.listen((event) {
+      final data = event.snapshot.value as Map<dynamic, dynamic>?;
+      if (data != null) {
+        setState(() {
+          numberOfNearbyAvailableDrivers = data.length;
+        });
+      } else {
+        Fluttertoast.showToast(msg: AppStrings.getNumberOfNearbyDriversAvailableError);
+        setState(() {
+          numberOfNearbyAvailableDrivers = 0;
+        });
+      }
+    });
   }
 
   @override
@@ -700,6 +722,7 @@ class _MainScreenState extends State<MainScreen> {
                         icon: Icons.check,
                         onPressed: () {
                           if (Provider.of<AppInfo>(context, listen: false).passengerDropOffLocation != null && ifRouteIsConfirmed) {
+                            getNumberOfNearbyAvailableDrivers();
                             saveRideRequestInfo();
                           } else if(showRouteConfirmationOptions && !ifRouteIsConfirmed) {
                             Fluttertoast.showToast(msg: AppStrings.userNeedToConfirmSelectedDestination);
@@ -1097,7 +1120,7 @@ class _MainScreenState extends State<MainScreen> {
 
   displayNearbyAvailableDriversOnTheMap() {
     setState(() {
-      markersSet.removeWhere((marker) => marker.markerId.value != 'originMarkerId' || marker.markerId.value != 'destinationMarkerId');
+      markersSet.clear();
       Set<Marker> driversMarkerSet = Set<Marker>(); // NB: Ignore Flutter's suggestion.
 
       for(NearbyAvailableDrivers eachDriver in AssistantGeofire.nearbyAvailableDriversList) {

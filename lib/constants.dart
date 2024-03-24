@@ -26,6 +26,7 @@ class AppStrings {
   static const String driverDoesNotExistError = 'Erro ao selecionar motorista. Tente novamente.';
   static const String driverAuthTokenError = 'Erro com o token de autentificação. Por favor, selecione outro motorista.';
   static const String launchPortuGoWebsiteError = 'Erro ao abrir o website. Tente novamente numa outra hora.';
+  static const String getNumberOfNearbyDriversAvailableError = 'Erro ao tentar mostrar os motoristas disponíveis.';
 
   // 'signup_screen.dart'
   static const String welcomeMessage = 'Bem-vindo ao PortuGO!';

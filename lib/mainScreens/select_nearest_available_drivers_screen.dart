@@ -2,10 +2,8 @@ import 'dart:io';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:portu_go_passenger/assistants/assistant_methods.dart';
 import 'package:portu_go_passenger/global/global.dart';
-import 'package:portu_go_passenger/mainScreens/main_screen.dart';
 import 'package:smooth_star_rating_nsafe/smooth_star_rating.dart';
 
 import '../constants.dart';
@@ -31,16 +29,16 @@ class _SelectNearestAvailableDriversScreenState extends State<SelectNearestAvail
     super.initState();
   }
 
-  String tripDurationTreatedText() {
+  String tripDurationTreatedText(int index) {
     if(tripDirectionRouteDetails != null) {
       String durationText = tripDirectionRouteDetails!.durationText!;
-      // Replace 'hours' and 'hour' with 'horas', and 'hora', respectively
+      // Replace 'hours' and 'hour' with 'horas', and 'hora', respectively:
       String treatedDurationText = durationText.replaceAll('hours', 'horas').replaceAll('hour', 'hora');
 
-      // Find the index of 'hora' or 'horas' to keep everything before it
+      // Find the index of 'hora' or 'horas' to keep everything before it:
       int hourIndex = treatedDurationText.indexOf('hora');
       if(hourIndex != -1) {
-        // Add 4 or 5 to include 'hora' or 'horas' in the result
+        // Add 4 or 5 to include 'hora' or 'horas' in the result:
         int endIndex = treatedDurationText.contains('horas') ? hourIndex + 5 : hourIndex + 4;
         treatedDurationText = treatedDurationText.substring(0, endIndex);
       }
@@ -73,9 +71,9 @@ class _SelectNearestAvailableDriversScreenState extends State<SelectNearestAvail
         title: const Text(
           AppStrings.nearbyDrivers,
           style: TextStyle(
-              fontSize: AppFontSizes.l,
-              color: AppColors.white,
-              fontWeight: AppFontWeights.medium
+            fontSize: AppFontSizes.l,
+            color: AppColors.white,
+            fontWeight: AppFontWeights.medium
           ),
         ),
         leading: IconButton(
@@ -85,12 +83,11 @@ class _SelectNearestAvailableDriversScreenState extends State<SelectNearestAvail
             widget.rideRequestRef!.remove();
             driversList.clear();
             Navigator.pop(context);
-            // Navigator.push(context, MaterialPageRoute(builder: (c) => const MainScreen()));
           },
         ),
       ),
       body: ListView.builder(
-        itemCount: driversList.length,
+        itemCount: numberOfNearbyAvailableDrivers,
         itemBuilder: (BuildContext context, int index) {
           getCarTypeAndSetCarImageAndFareAmount(index);
 
@@ -99,7 +96,6 @@ class _SelectNearestAvailableDriversScreenState extends State<SelectNearestAvail
               setState(() {
                 selectedDriverId = driversList[index]['id'].toString();
               });
-              driversList.clear();
               Navigator.pop(context, AppStrings.chosenDriver);
             },
             child: Card(
@@ -129,9 +125,9 @@ class _SelectNearestAvailableDriversScreenState extends State<SelectNearestAvail
                         height: AppLineHeights.ml
                       ),
                     ),
-            
+
                     SmoothStarRating(
-                      rating: (driversList[index]['ratings'] == null) ? 0 : driversList[index]['ratings'],
+                      rating: (driversList[index]['ratings'] == null) ? 0 : double.parse(driversList[index]['ratings'].toString()),
                       color: AppColors.indigo9,
                       borderColor: AppColors.indigo9,
                       allowHalfRating: false,
@@ -219,7 +215,7 @@ class _SelectNearestAvailableDriversScreenState extends State<SelectNearestAvail
                                   const SizedBox(width: AppSpaceValues.space1),
             
                                   Text(
-                                    tripDurationTreatedText(),
+                                    tripDurationTreatedText(index),
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                       fontSize: AppFontSizes.sm,

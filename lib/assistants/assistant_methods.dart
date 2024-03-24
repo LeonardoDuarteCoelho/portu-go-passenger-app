@@ -154,12 +154,10 @@ class AssistantMethods {
   /// This method will retrieve all the trip keys for passenger:
   static void readTripIdKeys(context) {
     // Collecting each key:
-    FirebaseDatabase.instance.ref().child('rideRequests').orderByChild('passengerName').equalTo(passengerModelCurrentInfo!.name).once().then((snap) {
+    FirebaseDatabase.instance.ref().child('rideRequests').orderByChild('passengerId').equalTo(passengerModelCurrentInfo!.id).once().then((snap) {
       if(snap.snapshot.value != null) {
         Map tripIdKeys = snap.snapshot.value as Map;
-        int tripsCounter = tripIdKeys.length; // How many trips the passenger had.
-        // Counting total number of trips and share it with provider:
-        Provider.of<AppInfo>(context, listen: false).updateTripsCounter(tripsCounter);
+        numberOfTripsToBeDisplayedInHistory = tripIdKeys.length; // Counting total number of trips.
         // Share trip keys with provider:
         List<String> tripKeysList = [];
         tripIdKeys.forEach((key, value) {

@@ -2,6 +2,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:portu_go_passenger/components/button.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:smooth_star_rating_nsafe/smooth_star_rating.dart';
 
 import '../constants.dart';
@@ -127,7 +128,7 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
                       // If the driver didn't have any previous ratings...
                       if(snap.snapshot.value == null) {
                         driverRatingRef!.set(passengerRatingForDriver.toString());
-                        Navigator.push(context, MaterialPageRoute(builder: (c) => const SplashScreen()));
+                        Restart.restartApp();
                       }
                       // If driver has previous ratings...
                       else {
@@ -135,7 +136,7 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
                         // Calculating the average ratings based on the new rating:
                         driverRatingsAfterTrip = (driverPreviousRatings! + passengerRatingForDriver) / 2;
                         driverRatingRef!.set(driverRatingsAfterTrip.toString());
-                        Navigator.push(context, MaterialPageRoute(builder: (c) => const SplashScreen()));
+                        Restart.restartApp();
                       }
                       Fluttertoast.showToast(msg: AppStrings.thankingPassengerForSendRating);
                     });
